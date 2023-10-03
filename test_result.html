@@ -1,0 +1,684 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>mbed Greentea Results Report</title>
+        <script type="text/javascript">
+            function toggleOverlay(elemStr) {
+                var elem = document.getElementById(elemStr);
+                    if (elem) {
+                        if (elem.style.display == "") {
+                            document.getElementsByTagName("body")[0].style.overflowY = "hidden";
+                            elem.style.display = "block";
+                        } else {
+                            document.getElementsByTagName("body")[0].style.overflowY = "auto";
+                            elem.style.display = "";
+                        }
+                    }
+            }
+
+            function toggleDropdown(elemStr) {
+                var elem = document.getElementById(elemStr);
+                    if (elem) {
+                        if (elem.style.height == "0px" || elem.style.height == "") {
+                            elem.style.height = "auto";
+                            elem.previousElementSibling.textContent = elem.previousElementSibling.textContent.replace("▲", "▼");
+                        } else {
+                            elem.style.height = 0;
+                            elem.previousElementSibling.textContent = elem.previousElementSibling.textContent.replace("▼", "▲");
+                        }
+                    }
+            }
+        </script>
+        <style type="text/css">
+
+            div.container {
+                width: 100%;
+                border: none;
+            }
+
+            div.results_table {
+                width: 50%;
+            }
+
+            header, footer {
+                padding: 1em;
+                color: white;
+                background-color: #159ab5;
+                clear: left;
+                text-align: center;
+            }
+
+            body {
+                margin: 0;
+            }
+
+            article {
+                padding: 1em;
+                overflow: hidden;
+            }
+
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td.level_header {
+                background-color: #bbbbbb;
+            }
+
+            td, th {
+                border: none;
+                text-align: left;
+                padding: 8px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #eeeeee;
+            }
+
+            .test-column {
+                padding-right: 15px;
+            }
+
+            .overlay {
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                background-color: rgb(0,0,0);
+                background-color: rgba(0,0,0, 0.7);
+                overflow-y: scroll;
+                display: none;
+            }
+
+            .overlay-content {
+                position: relative;
+                top: 20px;
+                height: auto;
+                width: 80%;
+                margin-left: 10%;
+                margin-right: 10%;
+                margin-top: 30px;
+                padding: 20px;
+                background-color: white;
+                cursor: default;
+                font-family: "Courier New", Courier, monospace;
+                font-size: 14px;
+                white-space: pre-line;
+            }
+
+            .no-space {
+                margin: 0;
+                padding: 0;
+            }
+
+            .dropdown {
+                border: solid thin black;
+                border-radius: 5px;
+                padding: 8px;
+                margin: 0;
+                cursor: pointer;
+            }
+
+            .dropdown-content {
+                height: 0;
+                max-height: 500px;
+                transition: 0.5s;
+                white-space: pre-line;
+                overflow-y: auto;
+            }
+
+            .sub-dropdown-content {
+                margin-left: 2%;
+                margin-right: 2%;
+                max-height: inherit;
+            }
+
+            .output-text {
+                overflow-y: scroll;
+                background-color: #f7f7f7;
+                max-height: 500px;
+            }
+
+            .result {
+                cursor: pointer;
+                border-radius: 15px;
+                padding: 2px 6px 2px 6px;
+            }
+
+            .nowrap {
+                white-space: nowrap;
+            }
+
+            .close-button {
+                color: black;
+                float: right;
+                cursor: pointer;
+                font-size: 20pt;
+            }
+
+            .close-button:hover {
+                color: darkgrey;
+            }
+
+            .test-title-font {
+                font-size: 20pt;
+            }
+
+            .test-result-title-font {
+                font-size: 16pt;
+            }
+
+            .result-ok {
+                background-color: limegreen;
+            }
+
+            .result-fail {
+                background-color: darkorange;
+            }
+
+            .result-error {
+                background-color: orangered;
+            }
+
+            .result-skipped {
+                background-color: lightsteelblue;
+            }
+
+            .result-undef {
+                background-color: Red;
+            }
+
+            .result-ioerr-copy {
+                background-color: DarkSalmon;
+            }
+
+            .result-ioerr-disk {
+                background-color: DarkSalmon;
+            }
+
+            .result-ioerr-serial {
+                background-color: DarkSalmon;
+            }
+
+            .result-timeout {
+                background-color: DarkKhaki;
+            }
+
+            .result-no-image {
+                background-color: DarkSalmon;
+            }
+
+            .result-not-ran {
+                background-color: grey;
+            }
+
+            .result-other {
+                background-color: lavender;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="container">
+
+        <header>
+           <h1>mbed Greentea Results Report</h1>
+        </header>
+
+        <article>
+
+            <div style="width: 50%; margin: 0 auto;">
+                <table>
+                <colgroup>
+                    <col width="auto">
+                    <col span="1" width="50%">
+                </colgroup>
+                    <tr>
+                <td rowspan="2" class="level_header">
+                    <center>Tests</center>
+                </td>
+                <td colspan="1" class="level_header">
+                    <center>DISCO_H747I</center>
+                </td>
+            </tr>
+            <tr>
+                
+                <td class="level_header">
+                    <center>ARMC6</center>
+                </td>
+            </tr>
+            <tr>
+                <td class="test-column">mbed-os-drivers-tests-tests-mbed_drivers-timer</td>
+                <td>
+                    <div class="result result-ok" onclick="toggleOverlay('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer')">
+                        <center>OK  -  100&#37; (14/14)</center>
+                        <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer" class="overlay">
+                            <div class="overlay-content" onclick="event.stopPropagation()">
+                                <p class="no-space">
+                                    <span class="no-space test-title-font"><b>Test: mbed-os-drivers-tests-tests-mbed_drivers-timer <a class="close-button" onclick="toggleOverlay('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer')">x</a></b></span>
+                                    <span class="no-space test-result-title-font">Result: OK</span><br>
+                                    <b>Platform: DISCO_H747I - Toolchain: ARMC6</b>
+                                    Elapsed Time: 13.64 seconds
+                                    Build Path: BUILD/tests/DISCO_H747I/ARMC6
+                                    Absolute Build Path: c:\Users\micka\Mbed Programs\bike-computer\BUILD\tests\DISCO_H747I\ARMC6
+                                    Copy Method: default
+                                    Image Path: BUILD/tests/DISCO_H747I/ARMC6/mbed-os/drivers/tests/TESTS/mbed_drivers/timer/timer.bin
+                                </p>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_output')">&#9650 Test Output</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_output" class="dropdown-content output-text">[1696339516.17][HTST][INF] host test executor ver. 0.0.15
+[1696339516.17][HTST][INF] copy image onto target...
+[1696339516.17][COPY][INF] Waiting up to 60 sec for '08140221013269013E76F028' mount point (current is 'E:')...
+        1 fichier(s) copi(s).
+[1696339524.20][HTST][INF] starting host test process...
+[1696339524.96][CONN][INF] starting connection process...
+[1696339524.96][CONN][INF] notify event queue about extra 60 sec timeout for serial port pooling
+[1696339524.96][CONN][INF] initializing serial port listener... 
+[1696339524.96][PLGN][INF] Waiting up to 60 sec for '08140221013269013E76F028' serial port (current is 'COM3')...
+[1696339524.96][HTST][INF] setting timeout to: 60 sec
+[1696339524.97][SERI][INF] serial(port=COM3, baudrate=115200, read_timeout=0.01, write_timeout=5)
+[1696339524.97][SERI][INF] reset device using 'default' plugin...
+[1696339525.24][SERI][INF] waiting 1.00 sec after reset
+[1696339526.24][SERI][INF] wait for it...
+[1696339526.24][SERI][TXD] mbedmbedmbedmbedmbedmbedmbedmbedmbedmbed
+[1696339526.24][CONN][INF] sending up to 5 __sync packets (specified with --sync=5)
+[1696339526.24][CONN][INF] sending preamble '114d37b6-6b67-4501-b9de-b9a2d481fe14'
+[1696339526.25][SERI][TXD] {{__sync;114d37b6-6b67-4501-b9de-b9a2d481fe14}}
+[1696339526.26][CONN][RXD] mbedmbedmbedmbedmbedmbedmbedmbed
+[1696339526.28][CONN][RXD] >>> Running 14 test cases...
+[1696339526.28][CONN][INF] found SYNC in stream: {{__sync;114d37b6-6b67-4501-b9de-b9a2d481fe14}} it is #0 sent, queued...
+[1696339526.28][CONN][INF] found KV pair in stream: {{__version;1.3.0}}, queued...
+[1696339526.28][CONN][INF] found KV pair in stream: {{__timeout;15}}, queued...
+[1696339526.28][CONN][INF] found KV pair in stream: {{__host_test_name;default_auto}}, queued...
+[1696339526.28][HTST][INF] sync KV found, uuid=114d37b6-6b67-4501-b9de-b9a2d481fe14, timestamp=1696339526.276284
+[1696339526.28][HTST][INF] DUT greentea-client version: 1.3.0
+[1696339526.28][HTST][INF] setting timeout to: 15 sec
+[1696339526.28][HTST][INF] host test class: '<class 'mbed_os_tools.test.host_tests.default_auto.DefaultAuto'>'
+[1696339526.28][HTST][INF] host test setup() call...
+[1696339526.28][HTST][INF] CALLBACKs updated
+[1696339526.28][HTST][INF] host test detected: default_auto
+[1696339526.29][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on os ticker) is stopped after creation.}}, queued...
+[1696339526.29][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on user ticker) is stopped after creation.}}, queued...
+[1696339526.31][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on os ticker) - measured time accumulation.}}, queued...
+[1696339526.31][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on user ticker) measured time accumulation.}}, queued...
+[1696339526.31][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on os ticker) - reset.}}, queued...
+[1696339526.32][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on user ticker) - reset.}}, queued...
+[1696339526.32][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on os ticker) - start started timer.}}, queued...
+[1696339526.34][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer (based on user ticker) - start started timer.}}, queued...
+[1696339526.34][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer - time measurement 1 ms.}}, queued...
+[1696339526.34][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer - time measurement 10 ms.}}, queued...
+[1696339526.35][CONN][RXD] 
+[1696339526.35][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer - time measurement 100 ms.}}, queued...
+[1696339526.35][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer - time measurement 1 s.}}, queued...
+[1696339526.35][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer - copying 5 ms.}}, queued...
+[1696339526.35][CONN][INF] found KV pair in stream: {{__testcase_name;Test: Timer - moving 5 ms.}}, queued...
+[1696339526.37][CONN][RXD] >>> Running case #1: 'Test: Timer (based on os ticker) is stopped after creation.'...
+[1696339526.37][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) is stopped after creation.}}, queued...
+[1696339526.39][CONN][RXD] >>> 'Test: Timer (based on os ticker) is stopped after creation.': 1 passed, 0 failed
+[1696339526.39][CONN][RXD] 
+[1696339526.39][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) is stopped after creation.;1;0}}, queued...
+[1696339526.40][CONN][RXD] >>> Running case #2: 'Test: Timer (based on user ticker) is stopped after creation.'...
+[1696339526.40][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) is stopped after creation.}}, queued...
+[1696339526.42][CONN][RXD] >>> 'Test: Timer (based on user ticker) is stopped after creation.': 1 passed, 0 failed
+[1696339526.42][CONN][RXD] 
+[1696339526.42][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on user ticker) is stopped after creation.;1;0}}, queued...
+[1696339526.43][CONN][RXD] >>> Running case #3: 'Test: Timer (based on os ticker) - measured time accumulation.'...
+[1696339526.43][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) - measured time accumulation.}}, queued...
+[1696339527.58][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) - measured time accumulation.;1;0}}, queued...
+[1696339527.59][CONN][RXD] >>> 'Test: Timer (based on os ticker) - measured time accumulation.': 1 passed, 0 failed
+[1696339527.59][CONN][RXD] 
+[1696339527.59][CONN][RXD] >>> Running case #4: 'Test: Timer (based on user ticker) measured time accumulation.'...
+[1696339527.61][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) measured time accumulation.}}, queued...
+[1696339527.61][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on user ticker) measured time accumulation.;1;0}}, queued...
+[1696339527.62][CONN][RXD] >>> 'Test: Timer (based on user ticker) measured time accumulation.': 1 passed, 0 failed
+[1696339527.62][CONN][RXD] 
+[1696339527.62][CONN][RXD] >>> Running case #5: 'Test: Timer (based on os ticker) - reset.'...
+[1696339527.64][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) - reset.}}, queued...
+[1696339527.65][CONN][RXD] >>> 'Test: Timer (based on os ticker) - reset.': 1 passed, 0 failed
+[1696339527.65][CONN][RXD] 
+[1696339527.65][CONN][RXD] >>> Running case #6: 'Test: Timer (based on user ticker) - reset.'...
+[1696339527.65][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) - reset.;1;0}}, queued...
+[1696339527.67][CONN][RXD] >>> 'Test: Timer (based on user ticker) - reset.': 1 passed, 0 failed
+[1696339527.67][CONN][RXD] 
+[1696339527.67][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) - reset.}}, queued...
+[1696339527.67][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on user ticker) - reset.;1;0}}, queued...
+[1696339527.68][CONN][RXD] >>> Running case #7: 'Test: Timer (based on os ticker) - start started timer.'...
+[1696339527.68][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) - start started timer.}}, queued...
+[1696339527.70][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) - start started timer.;1;0}}, queued...
+[1696339527.72][CONN][RXD] >>> 'Test: Timer (based on os ticker) - start started timer.': 1 passed, 0 failed
+[1696339527.72][CONN][RXD] 
+[1696339527.72][CONN][RXD] >>> Running case #8: 'Test: Timer (based on user ticker) - start started timer.'...
+[1696339527.73][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) - start started timer.}}, queued...
+[1696339527.73][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on user ticker) - start started timer.;1;0}}, queued...
+[1696339527.75][CONN][RXD] >>> 'Test: Timer (based on user ticker) - start started timer.': 1 passed, 0 failed
+[1696339527.75][CONN][RXD] 
+[1696339527.75][CONN][RXD] >>> Running case #9: 'Test: Timer - time measurement 1 ms.'...
+[1696339527.75][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 1 ms.}}, queued...
+[1696339527.77][CONN][RXD] >>> 'Test: Timer - time measurement 1 ms.': 1 passed, 0 failed
+[1696339527.77][CONN][RXD] 
+[1696339527.77][CONN][RXD] >>> Running case #10: 'Test: Timer - time measurement 10 ms.'...
+[1696339527.77][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 1 ms.;1;0}}, queued...
+[1696339527.78][CONN][RXD] >>> 'Test: Timer - time measurement 10 ms.': 1 passed, 0 failed
+[1696339527.78][CONN][RXD] 
+[1696339527.78][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 10 ms.}}, queued...
+[1696339527.78][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 10 ms.;1;0}}, queued...
+[1696339527.80][CONN][RXD] >>> Running case #11: 'Test: Timer - time measurement 100 ms.'...
+[1696339527.80][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 100 ms.}}, queued...
+[1696339527.88][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 100 ms.;1;0}}, queued...
+[1696339527.89][CONN][RXD] >>> 'Test: Timer - time measurement 100 ms.': 1 passed, 0 failed
+[1696339527.89][CONN][RXD] 
+[1696339527.89][CONN][RXD] >>> Running case #12: 'Test: Timer - time measurement 1 s.'...
+[1696339527.89][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 1 s.}}, queued...
+[1696339528.89][CONN][RXD] >>> 'Test: Timer - time measurement 1 s.': 1 passed, 0 failed
+[1696339528.89][CONN][RXD] 
+[1696339528.89][CONN][RXD] >>> Running case #13: 'Test: Timer - copying 5 ms.'...
+[1696339528.89][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 1 s.;1;0}}, queued...
+[1696339528.89][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - copying 5 ms.}}, queued...
+[1696339528.90][CONN][RXD] >>> 'Test: Timer - copying 5 ms.': 1 passed, 0 failed
+[1696339528.90][CONN][RXD] 
+[1696339528.90][CONN][RXD] >>> Running case #14: 'Test: Timer - moving 5 ms.'...
+[1696339528.90][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - copying 5 ms.;1;0}}, queued...
+[1696339528.92][CONN][RXD] >>> 'Test: Timer - moving 5 ms.': 1 passed, 0 failed
+[1696339528.92][CONN][RXD] 
+[1696339528.92][CONN][RXD] >>> Test cases: 14 passed, 0 failed
+[1696339528.92][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - moving 5 ms.}}, queued...
+[1696339528.92][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - moving 5 ms.;1;0}}, queued...
+[1696339528.94][CONN][INF] found KV pair in stream: {{__testcase_summary;14;0}}, queued...
+[1696339528.94][CONN][INF] found KV pair in stream: {{end;success}}, queued...
+[1696339528.94][CONN][INF] found KV pair in stream: {{__exit;0}}, queued...
+[1696339528.94][HTST][INF] __exit(0)
+[1696339528.94][HTST][INF] __notify_complete(True)
+[1696339528.94][HTST][INF] __exit_event_queue received
+[1696339528.94][HTST][INF] test suite run finished after 2.66 sec...
+[1696339528.95][CONN][INF] received special event '__host_test_finished' value='True', finishing
+[1696339529.01][HTST][INF] CONN exited with code: 0
+[1696339529.01][HTST][INF] Some events in queue
+[1696339529.01][HTST][INF] stopped consuming events
+[1696339529.01][HTST][INF] host test result() call skipped, received: True
+[1696339529.01][HTST][INF] calling blocking teardown()
+[1696339529.01][HTST][INF] teardown() finished
+[1696339529.01][HTST][INF] {{result;success}}
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase')">&#9650 Testcase Results</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase" class="dropdown-content sub-dropdown-content">
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_0')">&#9650 Testcase: Test: Timer (based on os ticker) is stopped after creation.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_0" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.02
+                                        Start Time: 03-10-2023 15:25:26.370000
+                                        End Time: 03-10-2023 15:25:26.390000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_0_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_0_utest" class="dropdown-content output-text sub-dropdown-content">[1696339526.37][CONN][RXD] >>> Running case #1: 'Test: Timer (based on os ticker) is stopped after creation.'...
+[1696339526.37][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) is stopped after creation.}}, queued...
+[1696339526.39][CONN][RXD] >>> 'Test: Timer (based on os ticker) is stopped after creation.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_1')">&#9650 Testcase: Test: Timer (based on user ticker) is stopped after creation.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_1" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.02
+                                        Start Time: 03-10-2023 15:25:26.400000
+                                        End Time: 03-10-2023 15:25:26.420000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_1_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_1_utest" class="dropdown-content output-text sub-dropdown-content">[1696339526.40][CONN][RXD] >>> Running case #2: 'Test: Timer (based on user ticker) is stopped after creation.'...
+[1696339526.40][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) is stopped after creation.}}, queued...
+[1696339526.42][CONN][RXD] >>> 'Test: Timer (based on user ticker) is stopped after creation.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_2')">&#9650 Testcase: Test: Timer (based on os ticker) - measured time accumulation.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_2" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 1.15
+                                        Start Time: 03-10-2023 15:25:26.430000
+                                        End Time: 03-10-2023 15:25:27.580000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_2_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_2_utest" class="dropdown-content output-text sub-dropdown-content">[1696339526.43][CONN][RXD] >>> Running case #3: 'Test: Timer (based on os ticker) - measured time accumulation.'...
+[1696339526.43][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) - measured time accumulation.}}, queued...
+[1696339527.58][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) - measured time accumulation.;1;0}}, queued...
+[1696339527.59][CONN][RXD] >>> 'Test: Timer (based on os ticker) - measured time accumulation.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_3')">&#9650 Testcase: Test: Timer (based on user ticker) measured time accumulation.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_3" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.00
+                                        Start Time: 03-10-2023 15:25:27.610000
+                                        End Time: 03-10-2023 15:25:27.610000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_3_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_3_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.59][CONN][RXD] >>> Running case #4: 'Test: Timer (based on user ticker) measured time accumulation.'...
+[1696339527.61][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) measured time accumulation.}}, queued...
+[1696339527.61][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on user ticker) measured time accumulation.;1;0}}, queued...
+[1696339527.62][CONN][RXD] >>> 'Test: Timer (based on user ticker) measured time accumulation.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_4')">&#9650 Testcase: Test: Timer (based on os ticker) - reset.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_4" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.01
+                                        Start Time: 03-10-2023 15:25:27.640000
+                                        End Time: 03-10-2023 15:25:27.650000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_4_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_4_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.62][CONN][RXD] >>> Running case #5: 'Test: Timer (based on os ticker) - reset.'...
+[1696339527.64][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) - reset.}}, queued...
+[1696339527.65][CONN][RXD] >>> 'Test: Timer (based on os ticker) - reset.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_5')">&#9650 Testcase: Test: Timer (based on user ticker) - reset.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_5" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.00
+                                        Start Time: 03-10-2023 15:25:27.670000
+                                        End Time: 03-10-2023 15:25:27.670000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_5_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_5_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.65][CONN][RXD] >>> Running case #6: 'Test: Timer (based on user ticker) - reset.'...
+[1696339527.65][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) - reset.;1;0}}, queued...
+[1696339527.67][CONN][RXD] >>> 'Test: Timer (based on user ticker) - reset.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_6')">&#9650 Testcase: Test: Timer (based on os ticker) - start started timer.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_6" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.02
+                                        Start Time: 03-10-2023 15:25:27.680000
+                                        End Time: 03-10-2023 15:25:27.700000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_6_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_6_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.68][CONN][RXD] >>> Running case #7: 'Test: Timer (based on os ticker) - start started timer.'...
+[1696339527.68][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on os ticker) - start started timer.}}, queued...
+[1696339527.70][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on os ticker) - start started timer.;1;0}}, queued...
+[1696339527.72][CONN][RXD] >>> 'Test: Timer (based on os ticker) - start started timer.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_7')">&#9650 Testcase: Test: Timer (based on user ticker) - start started timer.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_7" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.00
+                                        Start Time: 03-10-2023 15:25:27.730000
+                                        End Time: 03-10-2023 15:25:27.730000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_7_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_7_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.72][CONN][RXD] >>> Running case #8: 'Test: Timer (based on user ticker) - start started timer.'...
+[1696339527.73][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer (based on user ticker) - start started timer.}}, queued...
+[1696339527.73][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer (based on user ticker) - start started timer.;1;0}}, queued...
+[1696339527.75][CONN][RXD] >>> 'Test: Timer (based on user ticker) - start started timer.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_8')">&#9650 Testcase: Test: Timer - time measurement 1 ms.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_8" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.02
+                                        Start Time: 03-10-2023 15:25:27.750000
+                                        End Time: 03-10-2023 15:25:27.770000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_8_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_8_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.75][CONN][RXD] >>> Running case #9: 'Test: Timer - time measurement 1 ms.'...
+[1696339527.75][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 1 ms.}}, queued...
+[1696339527.77][CONN][RXD] >>> 'Test: Timer - time measurement 1 ms.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_9')">&#9650 Testcase: Test: Timer - time measurement 10 ms.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_9" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.00
+                                        Start Time: 03-10-2023 15:25:27.780000
+                                        End Time: 03-10-2023 15:25:27.780000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_9_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_9_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.77][CONN][RXD] >>> Running case #10: 'Test: Timer - time measurement 10 ms.'...
+[1696339527.77][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 1 ms.;1;0}}, queued...
+[1696339527.78][CONN][RXD] >>> 'Test: Timer - time measurement 10 ms.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_10')">&#9650 Testcase: Test: Timer - time measurement 100 ms.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_10" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.08
+                                        Start Time: 03-10-2023 15:25:27.800000
+                                        End Time: 03-10-2023 15:25:27.880000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_10_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_10_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.80][CONN][RXD] >>> Running case #11: 'Test: Timer - time measurement 100 ms.'...
+[1696339527.80][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 100 ms.}}, queued...
+[1696339527.88][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 100 ms.;1;0}}, queued...
+[1696339527.89][CONN][RXD] >>> 'Test: Timer - time measurement 100 ms.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_11')">&#9650 Testcase: Test: Timer - time measurement 1 s.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_11" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 1.00
+                                        Start Time: 03-10-2023 15:25:27.890000
+                                        End Time: 03-10-2023 15:25:28.890000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_11_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_11_utest" class="dropdown-content output-text sub-dropdown-content">[1696339527.89][CONN][RXD] >>> Running case #12: 'Test: Timer - time measurement 1 s.'...
+[1696339527.89][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - time measurement 1 s.}}, queued...
+[1696339528.89][CONN][RXD] >>> 'Test: Timer - time measurement 1 s.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_12')">&#9650 Testcase: Test: Timer - copying 5 ms.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_12" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.01
+                                        Start Time: 03-10-2023 15:25:28.890000
+                                        End Time: 03-10-2023 15:25:28.900000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_12_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_12_utest" class="dropdown-content output-text sub-dropdown-content">[1696339528.89][CONN][RXD] >>> Running case #13: 'Test: Timer - copying 5 ms.'...
+[1696339528.89][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - time measurement 1 s.;1;0}}, queued...
+[1696339528.89][CONN][INF] found KV pair in stream: {{__testcase_start;Test: Timer - copying 5 ms.}}, queued...
+[1696339528.90][CONN][RXD] >>> 'Test: Timer - copying 5 ms.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space result-ok" onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_13')">&#9650 Testcase: Test: Timer - moving 5 ms.<br></p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_13" class="dropdown-content sub-dropdown-content">Result: OK
+                                        Elapsed Time: 0.00
+                                        Start Time: 03-10-2023 15:25:28.920000
+                                        End Time: 03-10-2023 15:25:28.920000
+                                        Failed: 0
+                                        Passed: 1
+                                        <br>
+                                <div class="nowrap">
+                                    <p class="dropdown no-space " onclick="toggleDropdown('target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_13_utest')">&#9650 uTest Log</p>
+                                    <div id="target_DISCO_H747I_toolchain_ARMC6_test_mbed_os_drivers_tests_tests_mbed_drivers_timer_testcase_result_13_utest" class="dropdown-content output-text sub-dropdown-content">[1696339528.90][CONN][RXD] >>> Running case #14: 'Test: Timer - moving 5 ms.'...
+[1696339528.90][CONN][INF] found KV pair in stream: {{__testcase_finish;Test: Timer - copying 5 ms.;1;0}}, queued...
+[1696339528.92][CONN][RXD] >>> 'Test: Timer - moving 5 ms.': 1 passed, 0 failed
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+                </table>
+            </div>
+
+        </article>
+
+        </div>
+
+    </body>
+</html>
