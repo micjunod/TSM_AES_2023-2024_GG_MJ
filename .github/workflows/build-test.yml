@@ -1,4 +1,4 @@
-name: Build test application
+name: Build test Application
 on:
   pull_request:
   push:
