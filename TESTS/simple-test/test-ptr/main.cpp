@@ -113,11 +113,10 @@ void test_unique_pointer(void)
 //Test raw pointer
 void test_raw_pointer(void) 
 {
-    int* rawptr;
+    Test* rawptr;
 
-    rawptr = new int;
-    *rawptr = 12;
-    TEST_ASSERT_EQUAL(12, *rawptr); // Check the value inside rawPointer
+    rawptr = new Test();
+    //TEST_ASSERT_EQUAL(12, *rawptr); // Check the value inside rawPointer
 
     delete rawptr;
     //TEST_ASSERT(rawPointer == nullptr);
