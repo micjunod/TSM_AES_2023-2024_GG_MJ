@@ -114,6 +114,7 @@ void test_raw_pointer(void) {
     Test* rawptr = new Test();
     TEST_ASSERT_EQUAL(1, Test::_instanceCount);  // Check the value inside rawPointer
 
+
     delete rawptr;
     TEST_ASSERT_EQUAL(0, Test::_instanceCount);  // Check the value inside rawPointer
 
