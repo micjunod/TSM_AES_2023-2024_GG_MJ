@@ -39,8 +39,8 @@ struct Test {
         _value = 0;
     }
 
-    int _value; // different pour chaque différent objet
-    static constexpr uint32_t kMagicNumber = 33; // avec static -> la meme variable partagé pour chaque objet
+    int _value;  // different pour chaque différent objet
+    static constexpr uint32_t kMagicNumber = 33;  // avec static -> la meme variable partagé pour chaque objet
     static uint32_t _instanceCount;
 };
 uint32_t Test::_instanceCount = 0;
@@ -94,12 +94,11 @@ void test_instance_sharing() {
     // Shared pointer has been destroyed
     TEST_ASSERT_EQUAL(0, Test::_instanceCount);
 
-    // selement quand le dernier pointer 
+    // selement quand le dernier pointer
 }
 
-//Test unique pointer
-void test_unique_pointer(void) 
-{
+// Test unique pointer
+void test_unique_pointer(void) {
     std::unique_ptr<Test> ptr1 = std::make_unique<Test>();
     std::unique_ptr<Test> ptr2;
     // Transfer pointer from source to destination
@@ -110,18 +109,13 @@ void test_unique_pointer(void)
     TEST_ASSERT(ptr2 != nullptr);
 }
 
-//Test raw pointer
-void test_raw_pointer(void) 
-{
-    int* rawptr;
-
-    rawptr = new int;
-    *rawptr = 12;
-    TEST_ASSERT_EQUAL(12, *rawptr); // Check the value inside rawPointer
+// Test raw pointer
+void test_raw_pointer(void) {
+    Test* rawptr = new Test();
+    TEST_ASSERT_EQUAL(1, Test::_instanceCount);  // Check the value inside rawPointer
 
     delete rawptr;
-    //TEST_ASSERT(rawPointer == nullptr);
-
+    TEST_ASSERT_EQUAL(0, Test::_instanceCount);  // Check the value inside rawPointer
 
     // Check if pSrc is null and pDest is not null
 }
@@ -138,8 +132,7 @@ static Case cases[] = {
     Case("Test single shared pointer instance", test_single_sharedptr_lifetime),
     Case("Test instance sharing across multiple shared pointers", test_instance_sharing),
     Case("Test unique pointer", test_unique_pointer),
-    Case("Test raw pointer", test_raw_pointer)
-    };
+    Case("Test raw pointer", test_raw_pointer)};
 
 static Specification specification(greentea_setup, cases);
 
