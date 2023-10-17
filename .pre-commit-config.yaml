@@ -19,6 +19,5 @@ repos:
   hooks:
   -   id: cppcheck
       name: cppcheck
-      entry: cppcheck
+      entry: cppcheck --enable=all --suppress=missingInclude:* --inline-suppr -i mbed-os --std=c++14 --error-exitcode=1
       language: system
-      args: [--std=c++14]
