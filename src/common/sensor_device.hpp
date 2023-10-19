@@ -47,3 +47,4 @@ class SensorDevice {
 };
 
 }  // namespace bike_computer
+

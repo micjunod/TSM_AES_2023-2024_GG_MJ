@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "constants.hpp"
+#include "constant.hpp"
 #include "mbed.h"
 
 namespace bike_computer {
@@ -87,3 +87,4 @@ class Speedometer {
 };
 
 }  // namespace bike_computer
+

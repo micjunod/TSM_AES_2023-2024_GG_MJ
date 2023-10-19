@@ -13,9 +13,6 @@
  * blinky led
  ******************************************************************************
  */
-
-#include <cstdio>
-
 #include "mbed.h"
 #include "mbed_trace.h"
 #if defined(MBED_CONF_MBED_TRACE_ENABLE)
@@ -25,10 +22,10 @@
 // Blinking rate in milliseconds
 #define BLINKING_RATE 500ms
 
-int division(int x) {
-    if (x == 0) return 0;
-    return 10 / x;
-}
+// int division(int x) {
+//     if (x == 0) return 0;
+//     return 10 / x;
+// }
 
 #if !MBED_TEST_MODE
 int main() {
@@ -36,13 +33,13 @@ int main() {
     mbed_trace_init();
 #endif
 
-    int val    = 3;
-    float fval = val * 4.0;
-    /* val = (int)fval; */
-    val = static_cast<int>(fval);
+    // int val    = 3;
+    // float fval = val * 4.0;
+    // val = (int)fval;
+    // val = static_cast<int>(fval);
 
-    int div  = division(2);
-    int div2 = division(0);
+    // int div  = division(2);
+    // int div2 = division(0);
 
     // Initialise the digital pin LED1 as an output
 #ifdef LED1
