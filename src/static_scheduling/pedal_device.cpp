@@ -41,14 +41,14 @@ std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
 }
 
 void PedalDevice::increaseRotationSpeed() {
-    if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
-        _pedalRotationTime += bike_computer::kInitialPedalRotationTime;
+    if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
+        _pedalRotationTime -= bike_computer::kDeltaPedalRotationTime;
     }
 }
 
 void PedalDevice::decreaseRotationSpeed() {
-    if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
-        _pedalRotationTime -= bike_computer::kInitialPedalRotationTime;
+    if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
+        _pedalRotationTime += bike_computer::kDeltaPedalRotationTime;
     }
 }
 }  // namespace static_scheduling
