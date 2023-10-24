@@ -79,6 +79,8 @@ float Speedometer::getDistance() {
 
 void Speedometer::reset() {
     // TODO
+    _totalDistance = 0.0f;
+    _lastTime = _timer.elapsed_time();
 }
 
 #if defined(MBED_TEST_MODE)
@@ -102,7 +104,12 @@ void Speedometer::computeSpeed() {
     // = 6.99m If you ride at 80 pedal turns / min, you run a distance of 6.99 * 80 / min
     // ~= 560 m / min = 33.6 km/h
 
-    // TODO
+    // tray = plateau
+
+    // TODO<
+    _currentSpeed = (kTraySize / static_cast<float>(_gearSize)) * kWheelCircumference / static_cast<float>(_pedalRotationTime.count()) * 3600; // km/H
+
+    //
 }
 
 void Speedometer::computeDistance() {
@@ -115,6 +122,13 @@ void Speedometer::computeDistance() {
     // distance traveled.
 
     // TODO
+    std::chrono::microseconds time = _timer.elapsed_time();
+    const auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(time - _lastTime);
+    float distance = _currentSpeed / 3600000.0 * elapsedTime.count();
+
+    _totalDistance += distance;
+
+    _lastTime = _timer.elapsed_time();
 }
 
 }  // namespace bike_computer

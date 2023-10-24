@@ -24,8 +24,10 @@
 
 #pragma once
 
-#include "constant.hpp"
+#include "constants.hpp"
 #include "mbed.h"
+
+
 
 namespace bike_computer {
 
@@ -65,9 +67,9 @@ class Speedometer {
     void computeDistance();
 
     // definition of task period time
-    static constexpr std::chrono::milliseconds kTaskPeriod = 400ms;
+    static constexpr std::chrono::milliseconds kTaskPeriod = 400ms; // T
     // definition of task execution time
-    static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
+    static constexpr std::chrono::microseconds kTaskRunTime = 200000us; // C
 
     // constants related to speed computation
     static constexpr float kWheelCircumference   = 2.1f;
