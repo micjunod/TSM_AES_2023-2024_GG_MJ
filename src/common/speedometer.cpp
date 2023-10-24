@@ -78,7 +78,6 @@ float Speedometer::getDistance() {
 }
 
 void Speedometer::reset() {
-
     _totalDistance = 0.0f;
     _lastTime      = _timer.elapsed_time();
 }
@@ -104,8 +103,8 @@ void Speedometer::computeSpeed() {
     // = 6.99m If you ride at 80 pedal turns / min, you run a distance of 6.99 * 80 / min
     // ~= 560 m / min = 33.6 km/h
 
-
-    _currentSpeed = kTraySize * kWheelCircumference * 3600 / (_gearSize * _pedalRotationTime.count());
+    _currentSpeed =
+        kTraySize * kWheelCircumference * 3600 / (_gearSize * _pedalRotationTime.count());
 }
 
 void Speedometer::computeDistance() {
@@ -128,7 +127,6 @@ void Speedometer::computeDistance() {
     _totalDistanceMutex.unlock();
 
     _lastTime = time;
-
 }
 
 }  // namespace bike_computer

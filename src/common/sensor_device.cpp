@@ -1,4 +1,6 @@
 
+// Copyright 2023 GRAC Guilhem JUNOD Mickael
+
 #include "sensor_device.hpp"
 
 #include <hdc1000.hpp>
