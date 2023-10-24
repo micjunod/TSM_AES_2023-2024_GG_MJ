@@ -127,7 +127,6 @@ void Speedometer::computeDistance() {
     _totalDistanceMutex.unlock();
 
     _lastTime = time;
-
 }
 
 }  // namespace bike_computer
