@@ -28,7 +28,7 @@
 #include "common/speedometer.hpp"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-#include "static_scheduling/gear_device.hpp"
+// #include "static_scheduling/gear_device.hpp"
 #include "unity/unity.h"
 #include "utest/utest.h"
 
@@ -110,7 +110,7 @@ static control_t test_gear_size(const size_t call_count) {
     const auto wheelCircumference = speedometer.getWheelCircumference();
     const auto pedalRotationTime  = speedometer.getCurrentPedalRotationTime();
 
-    for (uint8_t gearSize = bike_computer::kMaxGearSize;
+    for (uint8_t gearSize = bike_computer::kMinGearSize;
          gearSize <= bike_computer::kMaxGearSize;
          gearSize++) {
         // set the gear

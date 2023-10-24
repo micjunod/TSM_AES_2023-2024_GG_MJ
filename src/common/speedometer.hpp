@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "constant.hpp"
+#include "constants.hpp"
 #include "mbed.h"
 
 namespace bike_computer {
