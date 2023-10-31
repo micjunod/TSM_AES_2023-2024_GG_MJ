@@ -8,7 +8,7 @@
 #include "mbed_trace.h"
 
 namespace static_scheduling {
-static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
+static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
 
 PedalDevice::PedalDevice(Timer& timer) : _timer(timer) {}
 

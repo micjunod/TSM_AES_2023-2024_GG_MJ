@@ -9,6 +9,8 @@
 static constexpr uint8_t kPolarityPressed = 1;
 #endif
 
+static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
+
 namespace static_scheduling {
 
 ResetDevice::ResetDevice(Timer& timer)
@@ -16,7 +18,21 @@ ResetDevice::ResetDevice(Timer& timer)
     _resetButton.rise(callback(this, &ResetDevice::onRise));
 }
 
-bool ResetDevice::checkReset() { return (_resetButton.read() == kPolarityPressed); }
+bool ResetDevice::checkReset() {
+    std::chrono::microseconds initialTime = _timer.elapsed_time();
+    std::chrono::microseconds elapsedTime = std::chrono::microseconds::zero();
+
+    bool hasChanged = false;
+    while (elapsedTime < kTaskRunTime) {
+        if (!hasChanged) {
+            if (_resetButton.read() == kPolarityPressed) {
+                hasChanged = true;
+            }
+        }
+        elapsedTime = _timer.elapsed_time() - initialTime;
+    }
+    return hasChanged;
+}
 
 std::chrono::microseconds ResetDevice::getPressTime() { return _pressTime; }
 

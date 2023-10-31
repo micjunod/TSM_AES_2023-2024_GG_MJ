@@ -40,7 +40,8 @@ struct Test {
     }
 
     int _value;  // different pour chaque différent objet
-    static constexpr uint32_t kMagicNumber = 33;  // avec static -> la meme variable partagé pour chaque objet
+    static constexpr uint32_t kMagicNumber =
+        33;  // avec static -> la meme variable partagé pour chaque objet
     static uint32_t _instanceCount;
 };
 uint32_t Test::_instanceCount = 0;
@@ -113,7 +114,6 @@ void test_unique_pointer(void) {
 void test_raw_pointer(void) {
     Test* rawptr = new Test();
     TEST_ASSERT_EQUAL(1, Test::_instanceCount);  // Check the value inside rawPointer
-
 
     delete rawptr;
     TEST_ASSERT_EQUAL(0, Test::_instanceCount);  // Check the value inside rawPointer

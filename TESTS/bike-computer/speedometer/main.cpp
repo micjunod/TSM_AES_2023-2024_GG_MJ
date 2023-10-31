@@ -28,7 +28,7 @@
 #include "common/speedometer.hpp"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-//#include "static_scheduling/gear_device.hpp"
+// #include "static_scheduling/gear_device.hpp"
 #include "unity/unity.h"
 #include "utest/utest.h"
 

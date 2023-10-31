@@ -14,13 +14,14 @@
         "platform.stdio-baud-rate": 115200,
         "platform.default-serial-baud-rate": 115200,
         "platform.stdio-buffered-serial": true,
+        "platform.all-stats-enabled":true,
         "target.printf_lib":"minimal-printf",
         "platform.minimal-printf-enable-floating-point": true,
         "platform.minimal-printf-set-floating-point-max-decimals": 2
       },
       "DISCO_H747I": {
         "mbed-trace.enable": true,
-        "mbed-trace.max-level": "TRACE_LEVEL_INFO"      
+        "mbed-trace.max-level": "TRACE_LEVEL_DEBUG"      
       }
     }
 }
