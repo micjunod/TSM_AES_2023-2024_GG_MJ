@@ -36,14 +36,10 @@ class ResetDevice {
     ResetDevice(ResetDevice&)            = delete;
     ResetDevice& operator=(ResetDevice&) = delete;
 
-    // for computing the response time
-    std::chrono::microseconds getPressTime();
-
    private:
     // data members
     // instance representing the reset button
     InterruptIn _resetButton;
-    std::chrono::microseconds _pressTime;
 };
 
 }  // namespace static_scheduling_with_event

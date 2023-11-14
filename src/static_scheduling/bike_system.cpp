@@ -51,6 +51,7 @@ static constexpr std::chrono::milliseconds kTemperatureTaskComputationTime   = 1
 static constexpr std::chrono::milliseconds kDisplayTask2Period               = 1600ms;
 static constexpr std::chrono::milliseconds kDisplayTask2Delay                = 1200ms;
 static constexpr std::chrono::milliseconds kDisplayTask2ComputationTime      = 100ms;
+static constexpr std::chrono::milliseconds kMajorCycleDuration               = 1600ms;
 
 BikeSystem::BikeSystem()
     : _resetDevice(_timer),
@@ -84,7 +85,9 @@ void BikeSystem::start() {
         speedDistanceTask();
         displayTask1();
 
-        _cpuLogger.printStats();
+#if !MBED_TEST_MODE
+        // _cpuLogger.printStats();
+#endif
 
         // register the time at the end of the cyclic schedule period and print the
         // elapsed time for the period
@@ -135,6 +138,14 @@ void BikeSystem::startWithEventQueue() {
     displayEvent2.delay(kDisplayTask2Delay);
     displayEvent2.period(kDisplayTask2Period);
     displayEvent2.post();
+
+#if !MBED_TEST_MODE
+    Event<void()> cpuStatsEvent(&eventQueue,
+                                callback(&_cpuLogger, &advembsof::CPULogger::printStats));
+    cpuStatsEvent.delay(kMajorCycleDuration);
+    cpuStatsEvent.period(kMajorCycleDuration);
+    cpuStatsEvent.post();
+#endif
 
     eventQueue.dispatch_forever();
 }

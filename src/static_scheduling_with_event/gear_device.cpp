@@ -39,40 +39,24 @@ namespace static_scheduling_with_event {
 // definition of task execution time
 static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
 
-GearDevice::GearDevice(Timer& timer) : _timer(timer) {}
-
-uint8_t GearDevice::getCurrentGear() {
-    std::chrono::microseconds initialTime = _timer.elapsed_time();
-    std::chrono::microseconds elapsedTime = std::chrono::microseconds::zero();
-    // we bound the change to one increment/decrement per call
-    bool hasChanged = false;
-    while (elapsedTime < kTaskRunTime) {
-        if (!hasChanged) {
-            disco::Joystick::State joystickState =
-                disco::Joystick::getInstance().getState();
-            switch (joystickState) {
-                case disco::Joystick::State::UpPressed:
-                    if (_currentGear < bike_computer::kMaxGear) {
-                        _currentGear++;
-                    }
-                    hasChanged = true;
-                    break;
-
-                case disco::Joystick::State::DownPressed:
-                    if (_currentGear > bike_computer::kMinGear) {
-                        _currentGear--;
-                    }
-                    hasChanged = true;
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        elapsedTime = _timer.elapsed_time() - initialTime;
-    }
-    return _currentGear;
+GearDevice::GearDevice(Timer& timer) : _timer(timer) {
+    disco::Joystick::getInstance().setDownCallback(callback(this, &GearDevice::onDown));
+    disco::Joystick::getInstance().setUpCallback(callback(this, &GearDevice::onUp));
 }
+
+void GearDevice::onUp() {
+    if (_currentGear < bike_computer::kMaxGear) {
+        _currentGear++;
+    }
+}
+
+void GearDevice::onDown() {
+    if (_currentGear > bike_computer::kMinGear) {
+        _currentGear--;
+    }
+}
+
+uint8_t GearDevice::getCurrentGear() { return _currentGear; }
 
 uint8_t GearDevice::getCurrentGearSize() const {
     // simulate task computation by waiting for the required task run time

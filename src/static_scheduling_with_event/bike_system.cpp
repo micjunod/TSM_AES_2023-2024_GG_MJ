@@ -51,6 +51,7 @@ static constexpr std::chrono::milliseconds kTemperatureTaskComputationTime   = 1
 static constexpr std::chrono::milliseconds kDisplayTask2Period               = 1600ms;
 static constexpr std::chrono::milliseconds kDisplayTask2Delay                = 1200ms;
 static constexpr std::chrono::milliseconds kDisplayTask2ComputationTime      = 100ms;
+static constexpr std::chrono::milliseconds kMajorCycleDuration               = 1600ms;
 
 BikeSystem::BikeSystem()
     : _resetDevice(callback(this, &BikeSystem::onReset)),
@@ -62,42 +63,6 @@ BikeSystem::BikeSystem()
       _cpuLogger(_timer) {}
 
 void BikeSystem::start() {
-    tr_info("Starting Super-Loop without event handling");
-
-    init();
-
-    while (true) {
-        auto startTime = _timer.elapsed_time();
-
-        speedDistanceTask();
-        resetTask();
-        gearTask();
-
-        speedDistanceTask();
-        temperatureTask();
-        displayTask2();
-
-        speedDistanceTask();
-        resetTask();
-        gearTask();
-
-        speedDistanceTask();
-        displayTask1();
-
-        _cpuLogger.printStats();
-
-        // register the time at the end of the cyclic schedule period and print the
-        // elapsed time for the period
-        std::chrono::microseconds endTime = _timer.elapsed_time();
-        const auto cycle =
-            std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-        tr_debug("Repeating cycle time is %" PRIu64 " milliseconds", cycle.count());
-
-        // implement loop exit when applicable
-    }
-}
-
-void BikeSystem::startWithEventQueue() {
     tr_info("Starting Super-Loop WITH event handling");
 
     init();
@@ -135,6 +100,14 @@ void BikeSystem::startWithEventQueue() {
     displayEvent2.delay(kDisplayTask2Delay);
     displayEvent2.period(kDisplayTask2Period);
     displayEvent2.post();
+
+#if !MBED_TEST_MODE
+    Event<void()> cpuStatsEvent(&eventQueue,
+                                callback(&_cpuLogger, &advembsof::CPULogger::printStats));
+    cpuStatsEvent.delay(kMajorCycleDuration);
+    cpuStatsEvent.period(kMajorCycleDuration);
+    cpuStatsEvent.post();
+#endif
 
     eventQueue.dispatch_forever();
 }
@@ -208,18 +181,19 @@ void BikeSystem::temperatureTask() {
         _timer, advembsof::TaskLogger::kTemperatureTaskIndex, taskStartTime);
 }
 
-void BikeSystem::onReset() {}
+void BikeSystem::onReset() {
+    core_util_atomic_store_bool(&_onReset, true);
+    _resetPressTime = _timer.elapsed_time();
+}
 
 void BikeSystem::resetTask() {
     auto taskStartTime = _timer.elapsed_time();
 
-    // CALL onReset INSTEAD
-
-    if (_resetDevice.checkReset()) {
-        std::chrono::microseconds responseTime =
-            _timer.elapsed_time() - _resetDevice.getPressTime();
+    if (core_util_atomic_load_bool(&_onReset)) {
+        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetPressTime;
         tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
         _speedometer.reset();
+        core_util_atomic_store_bool(&_onReset, false);
     }
 
     _taskLogger.logPeriodAndExecutionTime(

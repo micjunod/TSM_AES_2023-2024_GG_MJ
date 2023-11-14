@@ -41,6 +41,9 @@ class PedalDevice {
     std::chrono::milliseconds getCurrentRotationTime();
 
    private:
+    // callback functions
+    void onRight();
+    void onLeft();
     // private methods
     void increaseRotationSpeed();
     void decreaseRotationSpeed();

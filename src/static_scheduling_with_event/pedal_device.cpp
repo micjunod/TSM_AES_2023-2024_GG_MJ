@@ -10,43 +10,23 @@
 namespace static_scheduling_with_event {
 static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
 
-PedalDevice::PedalDevice(Timer& timer) : _timer(timer) {}
+PedalDevice::PedalDevice(Timer& timer) : _timer(timer) {
+    disco::Joystick::getInstance().setRightCallback(
+        callback(this, &PedalDevice::onRight));
+    disco::Joystick::getInstance().setLeftCallback(callback(this, &PedalDevice::onLeft));
+}
 
 std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
-    std::chrono::microseconds initialTime = _timer.elapsed_time();
-    std::chrono::microseconds elapsedTime = std::chrono::microseconds::zero();
-    // we bound the change to one increment/decrement per call
-    bool hasChanged = false;
-
-    while (elapsedTime < kTaskRunTime) {
-        if (!hasChanged) {
-            disco::Joystick::State joystickState =
-                disco::Joystick::getInstance().getState();
-            switch (joystickState) {
-                case disco::Joystick::State::RightPressed:
-                    increaseRotationSpeed();
-                    hasChanged = true;
-                    break;
-                case disco::Joystick::State::LeftPressed:
-                    decreaseRotationSpeed();
-                    hasChanged = true;
-                    break;
-                default:
-                    break;
-            }
-        }
-        elapsedTime = _timer.elapsed_time() - initialTime;
-    }
     return _pedalRotationTime;
 }
 
-void PedalDevice::increaseRotationSpeed() {
+void PedalDevice::onRight() {
     if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
         _pedalRotationTime -= bike_computer::kDeltaPedalRotationTime;
     }
 }
 
-void PedalDevice::decreaseRotationSpeed() {
+void PedalDevice::onLeft() {
     if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
         _pedalRotationTime += bike_computer::kDeltaPedalRotationTime;
     }

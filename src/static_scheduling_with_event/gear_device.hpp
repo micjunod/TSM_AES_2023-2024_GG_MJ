@@ -42,6 +42,9 @@ class GearDevice {
     uint8_t getCurrentGearSize() const;
 
    private:
+    // callback functions
+    void onUp();
+    void onDown();
     // data members
     uint8_t _currentGear = bike_computer::kMinGear;
     Timer& _timer;
