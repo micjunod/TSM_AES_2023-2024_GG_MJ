@@ -102,6 +102,9 @@ void test_instance_sharing() {
 void test_unique_pointer(void) {
     std::unique_ptr<Test> ptr1 = std::make_unique<Test>();
     std::unique_ptr<Test> ptr2 = nullptr;
+
+    //Copy ptr1's value
+    uint32_t CopyinstanceCount = ptr1->_instanceCount;
     // Transfer pointer from source to destination
     ptr2 = std::move(ptr1);
 
@@ -110,7 +113,7 @@ void test_unique_pointer(void) {
     TEST_ASSERT(ptr2 != nullptr);
 
     //Test the Value of ptr2
-    TEST_ASSERT_EQUAL(1, ptr2->_instanceCount);
+    TEST_ASSERT_EQUAL(CopyinstanceCount, Test::_instanceCount);
 
 }
 
