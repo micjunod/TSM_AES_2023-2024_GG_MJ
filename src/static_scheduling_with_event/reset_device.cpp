@@ -13,11 +13,8 @@ static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
 
 namespace static_scheduling_with_event {
 
-ResetDevice::ResetDevice(mbed::Callback<void()> cb)
-    : _resetButton(BUTTON1), _pressTime(0us) {
+ResetDevice::ResetDevice(mbed::Callback<void()> cb) : _resetButton(BUTTON1) {
     _resetButton.rise(cb);
 }
-
-std::chrono::microseconds ResetDevice::getPressTime() { return _pressTime; }
 
 }  // namespace static_scheduling_with_event

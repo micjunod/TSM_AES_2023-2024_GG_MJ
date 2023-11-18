@@ -4,38 +4,28 @@
 
 #include <chrono>
 
-#include "joystick.hpp"
 #include "mbed_trace.h"
 
 namespace static_scheduling_with_event {
 static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
 
-PedalDevice::PedalDevice(Timer& timer) : _timer(timer) {}
+PedalDevice::PedalDevice(mbed::Callback<void()> cb) {
+    _joystick.setLeftCallback(cb);
+    _joystick.setRightCallback(cb);
+}
 
 std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
-    std::chrono::microseconds initialTime = _timer.elapsed_time();
-    std::chrono::microseconds elapsedTime = std::chrono::microseconds::zero();
-    // we bound the change to one increment/decrement per call
-    bool hasChanged = false;
+    disco::Joystick::State joystickState = disco::Joystick::getInstance().getState();
 
-    while (elapsedTime < kTaskRunTime) {
-        if (!hasChanged) {
-            disco::Joystick::State joystickState =
-                disco::Joystick::getInstance().getState();
-            switch (joystickState) {
-                case disco::Joystick::State::RightPressed:
-                    increaseRotationSpeed();
-                    hasChanged = true;
-                    break;
-                case disco::Joystick::State::LeftPressed:
-                    decreaseRotationSpeed();
-                    hasChanged = true;
-                    break;
-                default:
-                    break;
-            }
-        }
-        elapsedTime = _timer.elapsed_time() - initialTime;
+    switch (joystickState) {
+        case disco::Joystick::State::RightPressed:
+            increaseRotationSpeed();
+            break;
+        case disco::Joystick::State::LeftPressed:
+            decreaseRotationSpeed();
+            break;
+        default:
+            break;
     }
     return _pedalRotationTime;
 }

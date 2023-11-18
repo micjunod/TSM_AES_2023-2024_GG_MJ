@@ -72,6 +72,8 @@ class BikeSystem {
 
     // Function called when reset btn is pressed
     void onReset();
+    void changeGear();
+    void changePedal();
 
     // stop flag, used for stopping the super-loop (set in stop())
     bool _stopFlag = false;
@@ -99,6 +101,17 @@ class BikeSystem {
     // used for logging task info
     advembsof::TaskLogger _taskLogger;
     advembsof::CPULogger _cpuLogger;
+
+    //Event driven
+
+    volatile bool _isReset = false;
+    std::chrono::microseconds _resetTime;
+
+    volatile bool _isJoystickGear = false;
+    std::chrono::microseconds _joystickGearTime;
+
+    volatile bool _isJoystickPedal = false;
+    std::chrono::microseconds _joystickPedalTime;
 };
 
 }  // namespace static_scheduling_with_event

@@ -19,7 +19,7 @@
 #define TRACE_GROUP "MAIN"
 #endif  // MBED_CONF_MBED_TRACE_ENABLE
 
-#include "bike_system.hpp"
+#include "static_scheduling_with_event/bike_system.hpp"
 
 // Blinking rate in milliseconds
 #define BLINKING_RATE 500ms
@@ -50,8 +50,8 @@ int main() {
     bool led = false;
 #endif
 
-    static_scheduling::BikeSystem bikeSystem;
-    bikeSystem.start();
+    static_scheduling_with_event::BikeSystem bikeSystem;
+    bikeSystem.startWithEventQueue();
 
     while (true) {
         led = !led;

@@ -57,8 +57,8 @@ BikeSystem::BikeSystem()
       _displayDevice(),
       _speedometer(_timer),
       _sensorDevice(),
-      _gearDevice(_timer),
-      _pedalDevice(_timer),
+      _gearDevice(callback(this, &BikeSystem::changeGear)),
+      _pedalDevice(callback(this, &BikeSystem::changePedal)),
       _cpuLogger(_timer) {}
 
 void BikeSystem::start() {
@@ -136,6 +136,9 @@ void BikeSystem::startWithEventQueue() {
     displayEvent2.period(kDisplayTask2Period);
     displayEvent2.post();
 
+    // register the time at the end of the cyclic schedule period and print the
+    // elapsed time for the period
+
     eventQueue.dispatch_forever();
 }
 
@@ -165,28 +168,60 @@ void BikeSystem::init() {
     _taskLogger.enable(true);
 }
 
+void BikeSystem::changeGear() {
+    _joystickGearTime = _timer.elapsed_time();
+    _isJoystickGear   = true;
+}
+
 void BikeSystem::gearTask() {
     // gear task
     auto taskStartTime = _timer.elapsed_time();
 
     // no need to protect access to data members (single threaded)
-    _currentGear     = _gearDevice.getCurrentGear();
-    _currentGearSize = _gearDevice.getCurrentGearSize();
+
+    if (_isJoystickGear == true) {
+        std::chrono::microseconds responseTime =
+            _timer.elapsed_time() - _joystickGearTime;
+        tr_info("Gear task: response time is %" PRIu64 " usecs", responseTime.count());
+        _isJoystickGear  = false;
+        _currentGear     = _gearDevice.getCurrentGear();
+        _currentGearSize = _gearDevice.getCurrentGearSize();
+    }
+
+    auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
+        _timer.elapsed_time() - taskStartTime);
+
+    ThisThread::sleep_for(kResetTaskComputationTime - elapsedTimeTask);
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kGearTaskIndex, taskStartTime);
+}
+
+void BikeSystem::changePedal() {
+    _joystickPedalTime = _timer.elapsed_time();
+    _isJoystickPedal   = true;
 }
 
 void BikeSystem::speedDistanceTask() {
     // speed and distance task
     auto taskStartTime = _timer.elapsed_time();
 
-    const auto pedalRotationTime = _pedalDevice.getCurrentRotationTime();
-    _speedometer.setCurrentRotationTime(pedalRotationTime);
+    if (_isJoystickPedal == true) {
+        std::chrono::microseconds responseTime =
+            _timer.elapsed_time() - _joystickPedalTime;
+        tr_info("Pedal task: response time is %" PRIu64 " usecs", responseTime.count());
+        _isJoystickPedal             = false;
+        const auto pedalRotationTime = _pedalDevice.getCurrentRotationTime();
+        _speedometer.setCurrentRotationTime(pedalRotationTime);
+    }
     _speedometer.setGearSize(_currentGearSize);
     // no need to protect access to data members (single threaded)
     _currentSpeed     = _speedometer.getCurrentSpeed();
     _traveledDistance = _speedometer.getDistance();
+
+    auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
+        _timer.elapsed_time() - taskStartTime);
+    ThisThread::sleep_for(kResetTaskComputationTime - elapsedTimeTask);
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kSpeedTaskIndex, taskStartTime);
@@ -208,19 +243,26 @@ void BikeSystem::temperatureTask() {
         _timer, advembsof::TaskLogger::kTemperatureTaskIndex, taskStartTime);
 }
 
-void BikeSystem::onReset() {}
+void BikeSystem::onReset() {
+    _resetTime = _timer.elapsed_time();
+    _isReset   = true;
+}
 
 void BikeSystem::resetTask() {
     auto taskStartTime = _timer.elapsed_time();
 
     // CALL onReset INSTEAD
-
-    if (_resetDevice.checkReset()) {
-        std::chrono::microseconds responseTime =
-            _timer.elapsed_time() - _resetDevice.getPressTime();
+    if (_isReset == true) {
+        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetTime;
         tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
+        _isReset = false;
         _speedometer.reset();
     }
+
+    auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
+        _timer.elapsed_time() - taskStartTime);
+
+    ThisThread::sleep_for(kResetTaskComputationTime - elapsedTimeTask);
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kResetTaskIndex, taskStartTime);
@@ -258,6 +300,8 @@ void BikeSystem::displayTask2() {
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kDisplayTask2Index, taskStartTime);
+
+    _cpuLogger.printStats();
 }
 
 }  // namespace static_scheduling_with_event

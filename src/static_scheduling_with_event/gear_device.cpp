@@ -27,7 +27,6 @@
 // from disco_h747i/wrappers
 #include <chrono>
 
-#include "joystick.hpp"
 #include "mbed_trace.h"
 
 #if MBED_CONF_MBED_TRACE_ENABLE
@@ -39,37 +38,28 @@ namespace static_scheduling_with_event {
 // definition of task execution time
 static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
 
-GearDevice::GearDevice(Timer& timer) : _timer(timer) {}
+GearDevice::GearDevice(mbed::Callback<void()> cb) {
+    _joystick.setDownCallback(cb);
+    _joystick.setUpCallback(cb);
+}
 
 uint8_t GearDevice::getCurrentGear() {
-    std::chrono::microseconds initialTime = _timer.elapsed_time();
-    std::chrono::microseconds elapsedTime = std::chrono::microseconds::zero();
     // we bound the change to one increment/decrement per call
-    bool hasChanged = false;
-    while (elapsedTime < kTaskRunTime) {
-        if (!hasChanged) {
-            disco::Joystick::State joystickState =
-                disco::Joystick::getInstance().getState();
-            switch (joystickState) {
-                case disco::Joystick::State::UpPressed:
-                    if (_currentGear < bike_computer::kMaxGear) {
-                        _currentGear++;
-                    }
-                    hasChanged = true;
-                    break;
-
-                case disco::Joystick::State::DownPressed:
-                    if (_currentGear > bike_computer::kMinGear) {
-                        _currentGear--;
-                    }
-                    hasChanged = true;
-                    break;
-
-                default:
-                    break;
+    disco::Joystick::State joystickState = disco::Joystick::getInstance().getState();
+    switch (joystickState) {
+        case disco::Joystick::State::UpPressed:
+            if (_currentGear < bike_computer::kMaxGear) {
+                _currentGear++;
             }
-        }
-        elapsedTime = _timer.elapsed_time() - initialTime;
+            break;
+
+        case disco::Joystick::State::DownPressed:
+            if (_currentGear > bike_computer::kMinGear) {
+                _currentGear--;
+            }
+            break;
+        default:
+            break;
     }
     return _currentGear;
 }

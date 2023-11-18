@@ -26,12 +26,13 @@
 
 #include "constants.hpp"
 #include "mbed.h"
+#include "joystick.hpp"
 
 namespace static_scheduling_with_event {
 
 class PedalDevice {
    public:
-    explicit PedalDevice(Timer& timer);  // NOLINT(runtime/references)
+    explicit PedalDevice(mbed::Callback<void()> cb);  // NOLINT(runtime/references)
 
     // make the class non copyable
     PedalDevice(PedalDevice&)            = delete;
@@ -46,9 +47,8 @@ class PedalDevice {
     void decreaseRotationSpeed();
 
     // data members
-    std::chrono::milliseconds _pedalRotationTime =
-        bike_computer::kInitialPedalRotationTime;
-    Timer& _timer;
+    std::chrono::milliseconds _pedalRotationTime = bike_computer::kInitialPedalRotationTime;
+    disco::Joystick& _joystick = disco::Joystick::getInstance();
 };
 
 }  // namespace static_scheduling_with_event

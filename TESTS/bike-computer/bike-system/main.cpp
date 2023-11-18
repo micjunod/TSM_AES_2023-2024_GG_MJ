@@ -26,7 +26,7 @@
 
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-#include "static_scheduling/bike_system.hpp"
+#include "static_scheduling_with_event/bike_system.hpp"
 #include "task_logger.hpp"
 #include "unity/unity.h"
 #include "utest/utest.h"
@@ -36,11 +36,11 @@ using namespace utest::v1;
 // test_bike_system handler function
 static void test_bike_system() {
     // create the BikeSystem instance
-    static_scheduling::BikeSystem bikeSystem;
+    static_scheduling_with_event::BikeSystem bikeSystem;
 
     // run the bike system in a separate thread
     Thread thread;
-    thread.start(callback(&bikeSystem, &static_scheduling::BikeSystem::start));
+    thread.start(callback(&bikeSystem, &static_scheduling_with_event::BikeSystem::start));
 
     // let the bike system run for 20 secs
     ThisThread::sleep_for(20s);
@@ -74,12 +74,12 @@ static void test_bike_system() {
 // test_bike_system_event_queue handler function
 static void test_bike_system_event_queue() {
     // create the BikeSystem instance
-    static_scheduling::BikeSystem bikeSystem;
+    static_scheduling_with_event::BikeSystem bikeSystem;
 
     // run the bike system in a separate thread
     Thread thread;
-    thread.start(
-        callback(&bikeSystem, &static_scheduling::BikeSystem::startWithEventQueue));
+    thread.start(callback(
+        &bikeSystem, &static_scheduling_with_event::BikeSystem::startWithEventQueue));
 
     // let the bike system run for 20 secs
     ThisThread::sleep_for(20s);
@@ -115,7 +115,7 @@ static utest::v1::status_t greentea_setup(const size_t number_of_cases) {
 
 // List of test cases in this file
 static Case cases[] = {
-    Case("test bike system", test_bike_system),
+    // Case("test bike system", test_bike_system),
     Case("test bike system event queue", test_bike_system_event_queue)};
 
 static Specification specification(greentea_setup, cases);

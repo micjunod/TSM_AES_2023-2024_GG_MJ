@@ -26,12 +26,13 @@
 
 #include "constants.hpp"
 #include "mbed.h"
+#include "joystick.hpp"
 
 namespace static_scheduling_with_event {
 
 class GearDevice {
    public:
-    explicit GearDevice(Timer& timer);  // NOLINT(runtime/references)
+    explicit GearDevice(mbed::Callback<void()> cb);  // NOLINT(runtime/references)
 
     // make the class non copyable
     GearDevice(GearDevice&)            = delete;
@@ -44,7 +45,7 @@ class GearDevice {
    private:
     // data members
     uint8_t _currentGear = bike_computer::kMinGear;
-    Timer& _timer;
+    disco::Joystick& _joystick = disco::Joystick::getInstance();
 };
 
 }  // namespace static_scheduling_with_event

@@ -22,6 +22,8 @@
  * @version 0.1.0
  ***************************************************************************/
 
+#include <cstddef>
+
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "unity/unity.h"
@@ -101,13 +103,16 @@ void test_instance_sharing() {
 // Test unique pointer
 void test_unique_pointer(void) {
     std::unique_ptr<Test> ptr1 = std::make_unique<Test>();
-    std::unique_ptr<Test> ptr2;
+    std::unique_ptr<Test> ptr2 = nullptr;
     // Transfer pointer from source to destination
     ptr2 = std::move(ptr1);
 
     // Check if pSrc is null and pDest is not null
     TEST_ASSERT(ptr1 == nullptr);
     TEST_ASSERT(ptr2 != nullptr);
+
+    // Test the Value of ptr2
+    TEST_ASSERT_EQUAL(1, ptr2->_instanceCount);
 }
 
 // Test raw pointer
