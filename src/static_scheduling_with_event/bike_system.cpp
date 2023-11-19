@@ -253,25 +253,19 @@ void BikeSystem::temperatureTask() {
 }
 
 void BikeSystem::onReset() {
-    _resetTime = _timer.elapsed_time();
-    _isReset   = true;
+    core_util_atomic_store_bool(&_onReset, true);
+    _resetPressTime = _timer.elapsed_time();
 }
 
 void BikeSystem::resetTask() {
     auto taskStartTime = _timer.elapsed_time();
 
-    // CALL onReset INSTEAD
-    if (_isReset == true) {
-        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetTime;
+    if (core_util_atomic_load_bool(&_onReset)) {
+        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetPressTime;
         tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
-        _isReset = false;
         _speedometer.reset();
+        core_util_atomic_store_bool(&_onReset, false);
     }
-
-    auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
-        _timer.elapsed_time() - taskStartTime);
-
-    ThisThread::sleep_for(kResetTaskComputationTime - elapsedTimeTask);
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kResetTaskIndex, taskStartTime);
