@@ -22,7 +22,7 @@
  * @version 1.0.0
  ***************************************************************************/
 
-#include "bike_system.hpp"
+#include "static_scheduling_with_event/bike_system.hpp"
 
 #include <chrono>
 
@@ -137,17 +137,15 @@ void BikeSystem::startWithEventQueue() {
     displayEvent2.period(kDisplayTask2Period);
     displayEvent2.post();
 
-    #if !MBED_TEST_MODE
+#if !MBED_TEST_MODE
     Event<void()> cpuStatsEvent(&eventQueue,
                                 callback(&_cpuLogger, &advembsof::CPULogger::printStats));
     cpuStatsEvent.delay(kMajorCycleDuration);
     cpuStatsEvent.period(kMajorCycleDuration);
     cpuStatsEvent.post();
 #endif
-
     // register the time at the end of the cyclic schedule period and print the
     // elapsed time for the period
-
     eventQueue.dispatch_forever();
 }
 
@@ -181,16 +179,15 @@ void BikeSystem::changeGear() {
     core_util_atomic_store_bool(&_isJoystickGear, true);
     _joystickGearTime = _timer.elapsed_time();
 }
-}
 
 void BikeSystem::gearTask() {
-
     auto taskStartTime = _timer.elapsed_time();
 
     if (core_util_atomic_load_bool(&_isJoystickGear)) {
-        std::chrono::microseconds responseTime = _timer.elapsed_time() - _joystickGearTime;
+        std::chrono::microseconds responseTime =
+            _timer.elapsed_time() - _joystickGearTime;
         tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
-         _currentGear     = _gearDevice.getCurrentGear();
+        _currentGear     = _gearDevice.getCurrentGear();
         _currentGearSize = _gearDevice.getCurrentGearSize();
         core_util_atomic_store_bool(&_isJoystickGear, false);
     }
@@ -199,7 +196,7 @@ void BikeSystem::gearTask() {
 }
 
 void BikeSystem::changePedal() {
-    core_util_atomic_store_bool(& _isJoystickPedal, true);
+    core_util_atomic_store_bool(&_isJoystickPedal, true);
     _joystickPedalTime = _timer.elapsed_time();
 }
 
@@ -219,7 +216,7 @@ void BikeSystem::speedDistanceTask() {
     // no need to protect access to data members (single threaded)
     _currentSpeed     = _speedometer.getCurrentSpeed();
     _traveledDistance = _speedometer.getDistance();
-    
+
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kSpeedTaskIndex, taskStartTime);
 }
@@ -241,18 +238,18 @@ void BikeSystem::temperatureTask() {
 }
 
 void BikeSystem::onReset() {
-    core_util_atomic_store_bool(&_onReset, true);
-    _resetPressTime = _timer.elapsed_time();
+    core_util_atomic_store_bool(&_isReset, true);
+    _resetTime = _timer.elapsed_time();
 }
 
 void BikeSystem::resetTask() {
     auto taskStartTime = _timer.elapsed_time();
 
-    if (core_util_atomic_load_bool(&_onReset)) {
-        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetPressTime;
+    if (core_util_atomic_load_bool(&_isReset)) {
+        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetTime;
         tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
         _speedometer.reset();
-        core_util_atomic_store_bool(&_onReset, false);
+        core_util_atomic_store_bool(&_isReset, false);
     }
 
     _taskLogger.logPeriodAndExecutionTime(
@@ -292,5 +289,4 @@ void BikeSystem::displayTask2() {
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kDisplayTask2Index, taskStartTime);
 }
-
 }  // namespace static_scheduling_with_event
