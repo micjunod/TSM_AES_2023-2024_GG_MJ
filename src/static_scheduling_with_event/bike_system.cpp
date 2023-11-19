@@ -207,11 +207,11 @@ void BikeSystem::speedDistanceTask() {
     // speed and distance task
     auto taskStartTime = _timer.elapsed_time();
 
-    if (_isJoystickPedal == true) {
+    if (core_util_atomic_load_bool(&_isJoystickPedal)) {
         std::chrono::microseconds responseTime =
             _timer.elapsed_time() - _joystickPedalTime;
         tr_info("Pedal task: response time is %" PRIu64 " usecs", responseTime.count());
-        _isJoystickPedal             = false;
+        core_util_atomic_store_bool(&_isJoystickPedal, false);
         const auto pedalRotationTime = _pedalDevice.getCurrentRotationTime();
         _speedometer.setCurrentRotationTime(pedalRotationTime);
     }
@@ -219,11 +219,7 @@ void BikeSystem::speedDistanceTask() {
     // no need to protect access to data members (single threaded)
     _currentSpeed     = _speedometer.getCurrentSpeed();
     _traveledDistance = _speedometer.getDistance();
-
-    auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
-        _timer.elapsed_time() - taskStartTime);
-    ThisThread::sleep_for(kResetTaskComputationTime - elapsedTimeTask);
-
+    
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kSpeedTaskIndex, taskStartTime);
 }
