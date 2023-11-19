@@ -51,6 +51,7 @@ static constexpr std::chrono::milliseconds kTemperatureTaskComputationTime   = 1
 static constexpr std::chrono::milliseconds kDisplayTask2Period               = 1600ms;
 static constexpr std::chrono::milliseconds kDisplayTask2Delay                = 1200ms;
 static constexpr std::chrono::milliseconds kDisplayTask2ComputationTime      = 100ms;
+static constexpr std::chrono::milliseconds kMajorCycleDuration               = 1600ms;
 
 BikeSystem::BikeSystem()
     : _resetDevice(callback(this, &BikeSystem::onReset)),
