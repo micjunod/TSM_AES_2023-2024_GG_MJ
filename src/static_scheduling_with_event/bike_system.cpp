@@ -178,8 +178,9 @@ void BikeSystem::init() {
 }
 
 void BikeSystem::changeGear() {
+    core_util_atomic_store_bool(&_isJoystickGear, true);
     _joystickGearTime = _timer.elapsed_time();
-    _isJoystickGear   = true;
+}
 }
 
 void BikeSystem::gearTask() {
@@ -207,8 +208,8 @@ void BikeSystem::gearTask() {
 }
 
 void BikeSystem::changePedal() {
+    core_util_atomic_store_bool(& _isJoystickPedal, true);
     _joystickPedalTime = _timer.elapsed_time();
-    _isJoystickPedal   = true;
 }
 
 void BikeSystem::speedDistanceTask() {
@@ -303,8 +304,6 @@ void BikeSystem::displayTask2() {
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kDisplayTask2Index, taskStartTime);
-
-    _cpuLogger.printStats();
 }
 
 }  // namespace static_scheduling_with_event
