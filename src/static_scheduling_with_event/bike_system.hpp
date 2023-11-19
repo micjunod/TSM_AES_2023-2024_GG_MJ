@@ -107,10 +107,11 @@ class BikeSystem {
     volatile bool _isReset = false;
     std::chrono::microseconds _resetTime = 0us;
 
-    
+    GearDevice _gearDevice;
     volatile bool _isJoystickGear = false;
     std::chrono::microseconds _joystickGearTime = 0us;
 
+    PedalDevice _pedalDevice;
     volatile bool _isJoystickPedal = false;
     std::chrono::microseconds _joystickPedalTime = 0us;
 };
