@@ -28,4 +28,3 @@ jobs:
           mbed deploy
           mbed compile -t GCC_ARM -m DISCO_H747I
           mbed test -t GCC_ARM -m ${{ matrix.target }} --profile ${{ matrix.profile }} --compile -n tests-bike-computer-bike-system,tests-bike-computer-sensor-device,tests-bike-computer-speedometer
-          mbed compile -t GCC_ARM -m DISCO_H747I
