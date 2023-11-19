@@ -184,25 +184,16 @@ void BikeSystem::changeGear() {
 }
 
 void BikeSystem::gearTask() {
-    // gear task
+
     auto taskStartTime = _timer.elapsed_time();
 
-    // no need to protect access to data members (single threaded)
-
-    if (_isJoystickGear == true) {
-        std::chrono::microseconds responseTime =
-            _timer.elapsed_time() - _joystickGearTime;
-        tr_info("Gear task: response time is %" PRIu64 " usecs", responseTime.count());
-        _isJoystickGear  = false;
-        _currentGear     = _gearDevice.getCurrentGear();
+    if (core_util_atomic_load_bool(&_isJoystickGear)) {
+        std::chrono::microseconds responseTime = _timer.elapsed_time() - _joystickGearTime;
+        tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
+         _currentGear     = _gearDevice.getCurrentGear();
         _currentGearSize = _gearDevice.getCurrentGearSize();
+        core_util_atomic_store_bool(&_isJoystickGear, false);
     }
-
-    auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
-        _timer.elapsed_time() - taskStartTime);
-
-    ThisThread::sleep_for(kResetTaskComputationTime - elapsedTimeTask);
-
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kGearTaskIndex, taskStartTime);
 }
