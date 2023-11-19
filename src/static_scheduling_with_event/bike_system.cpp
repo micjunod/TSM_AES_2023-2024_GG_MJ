@@ -136,6 +136,14 @@ void BikeSystem::startWithEventQueue() {
     displayEvent2.period(kDisplayTask2Period);
     displayEvent2.post();
 
+    #if !MBED_TEST_MODE
+    Event<void()> cpuStatsEvent(&eventQueue,
+                                callback(&_cpuLogger, &advembsof::CPULogger::printStats));
+    cpuStatsEvent.delay(kMajorCycleDuration);
+    cpuStatsEvent.period(kMajorCycleDuration);
+    cpuStatsEvent.post();
+#endif
+
     // register the time at the end of the cyclic schedule period and print the
     // elapsed time for the period
 
