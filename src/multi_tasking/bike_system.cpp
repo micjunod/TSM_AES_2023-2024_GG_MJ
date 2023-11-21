@@ -31,7 +31,7 @@
 #define TRACE_GROUP "BikeSystem"
 #endif  // MBED_CONF_MBED_TRACE_ENABLE
 
-namespace static_scheduling_with_event {
+namespace multi_tasking {
 
 static constexpr std::chrono::milliseconds kGearTaskPeriod                   = 800ms;
 static constexpr std::chrono::milliseconds kGearTaskDelay                    = 0ms;
@@ -54,7 +54,8 @@ static constexpr std::chrono::milliseconds kDisplayTask2ComputationTime      = 1
 static constexpr std::chrono::milliseconds kMajorCycleDuration               = 1600ms;
 
 BikeSystem::BikeSystem()
-    : _resetDevice(callback(this, &BikeSystem::onReset)),
+    : _thread(osPriorityNormal),
+      _resetDevice(callback(this, &BikeSystem::onReset)),
       _displayDevice(),
       _speedometer(_timer),
       _sensorDevice(),
@@ -67,49 +68,61 @@ void BikeSystem::start() {
 
     init();
 
-    EventQueue eventQueue;
+    osStatus status =
+        _thread.start(callback(&_eventQueueISR, &EventQueue::dispatch_forever));
+    tr_debug("Thread %s started with status %d", _thread.get_name(), status);
 
-    Event<void()> gearEvent(&eventQueue, callback(this, &BikeSystem::gearTask));
+    /*
+    Ya deux Queue : une pr le thread main pour lancer les taches périodiques (deja fait)
+    et une pr le thread qui execute les task ISR Qd ya un ISR, on vient remplir la Queue
+    de _thread avec un event La Queue de _thread est en dispatch foreever
+    */
+
+    EventQueue eventQueuePeriodic;
+
+    Event<void()> gearEvent(&eventQueuePeriodic, callback(this, &BikeSystem::gearTask));
     gearEvent.delay(kGearTaskDelay);
     gearEvent.period(kGearTaskPeriod);
     gearEvent.post();
 
-    Event<void()> speedDistanceEvent(&eventQueue,
+    Event<void()> speedDistanceEvent(&eventQueuePeriodic,
                                      callback(this, &BikeSystem::speedDistanceTask));
     speedDistanceEvent.delay(kSpeedDistanceTaskDelay);
     speedDistanceEvent.period(kSpeedDistanceTaskPeriod);
     speedDistanceEvent.post();
 
-    Event<void()> temperatureEvent(&eventQueue,
+    Event<void()> temperatureEvent(&eventQueuePeriodic,
                                    callback(this, &BikeSystem::temperatureTask));
     temperatureEvent.delay(kTemperatureTaskDelay);
     temperatureEvent.period(kTemperatureTaskPeriod);
     temperatureEvent.post();
 
-    Event<void()> resetEvent(&eventQueue, callback(this, &BikeSystem::resetTask));
-    resetEvent.delay(kResetTaskDelay);
-    resetEvent.period(kResetTaskPeriod);
-    resetEvent.post();
+    // Event<void()> resetEvent(&eventQueuePeriodic, callback(this,
+    // &BikeSystem::resetTask)); resetEvent.delay(kResetTaskDelay);
+    // resetEvent.period(kResetTaskPeriod);
+    // resetEvent.post();
 
-    Event<void()> displayEvent1(&eventQueue, callback(this, &BikeSystem::displayTask1));
+    Event<void()> displayEvent1(&eventQueuePeriodic,
+                                callback(this, &BikeSystem::displayTask1));
     displayEvent1.delay(kDisplayTask1Delay);
     displayEvent1.period(kDisplayTask1Period);
     displayEvent1.post();
 
-    Event<void()> displayEvent2(&eventQueue, callback(this, &BikeSystem::displayTask2));
+    Event<void()> displayEvent2(&eventQueuePeriodic,
+                                callback(this, &BikeSystem::displayTask2));
     displayEvent2.delay(kDisplayTask2Delay);
     displayEvent2.period(kDisplayTask2Period);
     displayEvent2.post();
 
 #if !MBED_TEST_MODE
-    Event<void()> cpuStatsEvent(&eventQueue,
+    Event<void()> cpuStatsEvent(&eventQueuePeriodic,
                                 callback(&_cpuLogger, &advembsof::CPULogger::printStats));
     cpuStatsEvent.delay(kMajorCycleDuration);
     cpuStatsEvent.period(kMajorCycleDuration);
     cpuStatsEvent.post();
 #endif
 
-    eventQueue.dispatch_forever();
+    eventQueuePeriodic.dispatch_forever();
 }
 
 void BikeSystem::stop() { core_util_atomic_store_bool(&_stopFlag, true); }
@@ -179,19 +192,17 @@ void BikeSystem::temperatureTask() {
 }
 
 void BikeSystem::onReset() {
-    core_util_atomic_store_bool(&_onReset, true);
+    Event<void()> resetEvent(&_eventQueueISR, callback(this, &BikeSystem::resetTask));
+    resetEvent.post();
     _resetPressTime = _timer.elapsed_time();
 }
 
 void BikeSystem::resetTask() {
     auto taskStartTime = _timer.elapsed_time();
 
-    if (core_util_atomic_load_bool(&_onReset)) {
-        std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetPressTime;
-        tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
-        _speedometer.reset();
-        core_util_atomic_store_bool(&_onReset, false);
-    }
+    std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetPressTime;
+    tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
+    _speedometer.reset();
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kResetTaskIndex, taskStartTime);
@@ -223,4 +234,4 @@ void BikeSystem::displayTask2() {
         _timer, advembsof::TaskLogger::kDisplayTask2Index, taskStartTime);
 }
 
-}  // namespace static_scheduling_with_event
+}  // namespace multi_tasking
