@@ -10,23 +10,25 @@
 namespace multi_tasking {
 static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
 
-PedalDevice::PedalDevice(Timer& timer) : _timer(timer) {
-    disco::Joystick::getInstance().setRightCallback(
-        callback(this, &PedalDevice::onRight));
-    disco::Joystick::getInstance().setLeftCallback(callback(this, &PedalDevice::onLeft));
+PedalDevice::PedalDevice(Timer& timer,
+                         mbed::Callback<void()> cbLeft,
+                         mbed::Callback<void()> cbRight)
+    : _timer(timer) {
+    disco::Joystick::getInstance().setRightCallback(cbRight);
+    disco::Joystick::getInstance().setLeftCallback(cbLeft);
 }
 
 std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
     return _pedalRotationTime;
 }
 
-void PedalDevice::onRight() {
+void PedalDevice::decrementPedal() {
     if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
         _pedalRotationTime -= bike_computer::kDeltaPedalRotationTime;
     }
 }
 
-void PedalDevice::onLeft() {
+void PedalDevice::incrementPedal() {
     if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
         _pedalRotationTime += bike_computer::kDeltaPedalRotationTime;
     }

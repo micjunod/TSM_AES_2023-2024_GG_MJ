@@ -69,8 +69,12 @@ class BikeSystem {
     void displayTask1();
     void displayTask2();
 
-    // Function called when reset btn is pressed
+    // Function called when btn is pressed
     void onReset();
+    void onDown();
+    void onUp();
+    void onLeft();
+    void onRight();
 
     // stop flag, used for stopping the super-loop (set in stop())
     bool _stopFlag = false;
@@ -88,7 +92,6 @@ class BikeSystem {
 
     // data member that represents the device used for resetting
     ResetDevice _resetDevice;
-    std::chrono::microseconds _resetPressTime = 0us;
 
     // data member that represents the device display
     advembsof::DisplayDevice _displayDevice;

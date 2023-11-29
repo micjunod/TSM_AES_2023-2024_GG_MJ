@@ -59,8 +59,11 @@ BikeSystem::BikeSystem()
       _displayDevice(),
       _speedometer(_timer),
       _sensorDevice(),
-      _gearDevice(_timer),
-      _pedalDevice(_timer),
+      _gearDevice(
+          _timer, callback(this, &BikeSystem::onUp), callback(this, &BikeSystem::onDown)),
+      _pedalDevice(_timer,
+                   callback(this, &BikeSystem::onLeft),
+                   callback(this, &BikeSystem::onRight)),
       _cpuLogger(_timer) {}
 
 void BikeSystem::start() {
@@ -80,27 +83,11 @@ void BikeSystem::start() {
 
     EventQueue eventQueuePeriodic;
 
-    Event<void()> gearEvent(&eventQueuePeriodic, callback(this, &BikeSystem::gearTask));
-    gearEvent.delay(kGearTaskDelay);
-    gearEvent.period(kGearTaskPeriod);
-    gearEvent.post();
-
-    Event<void()> speedDistanceEvent(&eventQueuePeriodic,
-                                     callback(this, &BikeSystem::speedDistanceTask));
-    speedDistanceEvent.delay(kSpeedDistanceTaskDelay);
-    speedDistanceEvent.period(kSpeedDistanceTaskPeriod);
-    speedDistanceEvent.post();
-
     Event<void()> temperatureEvent(&eventQueuePeriodic,
                                    callback(this, &BikeSystem::temperatureTask));
     temperatureEvent.delay(kTemperatureTaskDelay);
     temperatureEvent.period(kTemperatureTaskPeriod);
     temperatureEvent.post();
-
-    // Event<void()> resetEvent(&eventQueuePeriodic, callback(this,
-    // &BikeSystem::resetTask)); resetEvent.delay(kResetTaskDelay);
-    // resetEvent.period(kResetTaskPeriod);
-    // resetEvent.post();
 
     Event<void()> displayEvent1(&eventQueuePeriodic,
                                 callback(this, &BikeSystem::displayTask1));
@@ -151,31 +138,47 @@ void BikeSystem::init() {
     _taskLogger.enable(true);
 }
 
+void BikeSystem::onUp() {
+    _gearDevice.incrementGear();
+    Event<void()> gearEvent(&_eventQueueISR, callback(this, &BikeSystem::gearTask));
+    gearEvent.post();
+}
+
+void BikeSystem::onDown() {
+    _gearDevice.decrementGear();
+    Event<void()> gearEvent(&_eventQueueISR, callback(this, &BikeSystem::gearTask));
+    gearEvent.post();
+}
+
 void BikeSystem::gearTask() {
-    // gear task
-    auto taskStartTime = _timer.elapsed_time();
+    // need to protect access to data members (multi threaded)
+    core_util_atomic_store_u8(&_currentGear, _gearDevice.getCurrentGear());
+    core_util_atomic_store_u8(&_currentGearSize, _gearDevice.getCurrentGearSize());
+}
 
-    // no need to protect access to data members (single threaded)
-    _currentGear     = _gearDevice.getCurrentGear();
-    _currentGearSize = _gearDevice.getCurrentGearSize();
+void BikeSystem::onLeft() {
+    _pedalDevice.incrementPedal();
+    Event<void()> speedDistanceEvent(&_eventQueueISR,
+                                     callback(this, &BikeSystem::speedDistanceTask));
+    gearEvent.post();
+}
 
-    _taskLogger.logPeriodAndExecutionTime(
-        _timer, advembsof::TaskLogger::kGearTaskIndex, taskStartTime);
+void BikeSystem::onRight() {
+    _pedalDevice.decrementPedal();
+    Event<void()> speedDistanceEvent(&_eventQueueISR,
+                                     callback(this, &BikeSystem::speedDistanceTask));
+    gearEvent.post();
 }
 
 void BikeSystem::speedDistanceTask() {
-    // speed and distance task
-    auto taskStartTime = _timer.elapsed_time();
-
+    // need to protect access to data members (multi threaded)
+    // TODO(truc): atomic
     const auto pedalRotationTime = _pedalDevice.getCurrentRotationTime();
     _speedometer.setCurrentRotationTime(pedalRotationTime);
-    _speedometer.setGearSize(_currentGearSize);
-    // no need to protect access to data members (single threaded)
+    _speedometer.setGearSize(core_util_atomic_load_u8(&_currentGearSize));
+
     _currentSpeed     = _speedometer.getCurrentSpeed();
     _traveledDistance = _speedometer.getDistance();
-
-    _taskLogger.logPeriodAndExecutionTime(
-        _timer, advembsof::TaskLogger::kSpeedTaskIndex, taskStartTime);
 }
 
 void BikeSystem::temperatureTask() {
@@ -194,20 +197,11 @@ void BikeSystem::temperatureTask() {
 void BikeSystem::onReset() {
     Event<void()> resetEvent(&_eventQueueISR, callback(this, &BikeSystem::resetTask));
     resetEvent.post();
-    _resetPressTime = _timer.elapsed_time();
 }
 
-void BikeSystem::resetTask() {
-    auto taskStartTime = _timer.elapsed_time();
+void BikeSystem::resetTask() { _speedometer.reset(); }
 
-    std::chrono::microseconds responseTime = _timer.elapsed_time() - _resetPressTime;
-    tr_info("Reset task: response time is %" PRIu64 " usecs", responseTime.count());
-    _speedometer.reset();
-
-    _taskLogger.logPeriodAndExecutionTime(
-        _timer, advembsof::TaskLogger::kResetTaskIndex, taskStartTime);
-}
-
+// TODO(truc): atomic
 void BikeSystem::displayTask1() {
     auto taskStartTime = _timer.elapsed_time();
 
@@ -222,6 +216,7 @@ void BikeSystem::displayTask1() {
         _timer, advembsof::TaskLogger::kDisplayTask1Index, taskStartTime);
 }
 
+// TODO(truc): atomic
 void BikeSystem::displayTask2() {
     auto taskStartTime = _timer.elapsed_time();
 

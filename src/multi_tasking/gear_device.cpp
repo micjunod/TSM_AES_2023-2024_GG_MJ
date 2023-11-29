@@ -39,18 +39,21 @@ namespace multi_tasking {
 // definition of task execution time
 static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
 
-GearDevice::GearDevice(Timer& timer) : _timer(timer) {
-    disco::Joystick::getInstance().setDownCallback(callback(this, &GearDevice::onDown));
-    disco::Joystick::getInstance().setUpCallback(callback(this, &GearDevice::onUp));
+GearDevice::GearDevice(Timer& timer,
+                       mbed::Callback<void()> cbUp,
+                       mbed::Callback<void()> cbDown)
+    : _timer(timer) {
+    disco::Joystick::getInstance().setDownCallback(cbDown);
+    disco::Joystick::getInstance().setUpCallback(cbUp);
 }
 
-void GearDevice::onUp() {
+void GearDevice::incrementGear() {
     if (_currentGear < bike_computer::kMaxGear) {
         _currentGear++;
     }
 }
 
-void GearDevice::onDown() {
+void GearDevice::decrementGear() {
     if (_currentGear > bike_computer::kMinGear) {
         _currentGear--;
     }
