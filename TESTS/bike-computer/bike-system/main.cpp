@@ -143,6 +143,45 @@ static void test_bike_system_with_event() {
     }
 }
 
+// test_multi_tasking_bike_system handler function
+static void test_multi_tasking_bike_system() {
+    // create the BikeSystem instance
+    multi_tasking::BikeSystem bikeSystem;
+
+    // run the bike system in a separate thread
+    Thread thread;
+    thread.start(callback(&bikeSystem, &multi_tasking::BikeSystem::start));
+
+    // let the bike system run for 20 secs
+    ThisThread::sleep_for(20s);
+
+    // stop the bike system
+    bikeSystem.stop();
+
+    // check whether scheduling was correct
+    // Order is kGearTaskIndex, kSpeedTaskIndex, kTemperatureTaskIndex,
+    //          kResetTaskIndex, kDisplayTask1Index, kDisplayTask2Index
+    // When we use event handling, we do not check the computation time
+    constexpr std::chrono::microseconds taskPeriods[] = {
+        800000us, 400000us, 1600000us, 800000us, 1600000us, 1600000us};
+
+    // allow for 2 msecs offset (with EventQueue)
+    // I changed it to 2.1 msecs because off strange behaviour (see README)
+    uint64_t deltaUs = 2100;
+    TEST_ASSERT_UINT64_WITHIN(
+        kDeltaUs,
+        taskPeriods[advembsof::TaskLogger::kTemperatureTaskIndex].count(),
+        bikeSystem.getTaskLogger()
+            .getPeriod(advembsof::TaskLogger::kTemperatureTaskIndex)
+            .count());
+    TEST_ASSERT_UINT64_WITHIN(
+        kDeltaUs,
+        taskPeriods[advembsof::TaskLogger::kDisplayTask1Index].count(),
+        bikeSystem.getTaskLogger()
+            .getPeriod(advembsof::TaskLogger::kDisplayTask1Index)
+            .count());
+}
+
 static utest::v1::status_t greentea_setup(const size_t number_of_cases) {
     // Here, we specify the timeout (60s) and the host test (a built-in host test or the
     // name of our Python file)
