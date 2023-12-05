@@ -31,9 +31,7 @@ namespace multi_tasking {
 
 class GearDevice {
    public:
-    explicit GearDevice(
-                        mbed::Callback<void()> cbUp,
-                        mbed::Callback<void()> cbDown);  // NOLINT(runtime/references)
+    explicit GearDevice(mbed::Callback<void()> cbUp, mbed::Callback<void()> cbDown);  // NOLINT(runtime/references)
 
     // make the class non copyable
     GearDevice(GearDevice&)            = delete;

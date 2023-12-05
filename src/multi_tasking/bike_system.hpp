@@ -55,8 +55,12 @@ class BikeSystem {
     // method called for stopping the system
     void stop();
 
+    // methode onReset public
+    void onReset();
+
 #if defined(MBED_TEST_MODE)
     const advembsof::TaskLogger& getTaskLogger();
+    bike_computer::Speedometer &getSpeedometer();
 #endif  // defined(MBED_TEST_MODE)
 
    private:
@@ -66,11 +70,10 @@ class BikeSystem {
     void speedDistanceTask();
     void temperatureTask();
     void resetTask();
-    void displayTask1();
-    void displayTask2();
+    void displayTask();
 
     // Function called when btn is pressed
-    void onReset();
+    
     void onDown();
     void onUp();
     void onLeft();
