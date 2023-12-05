@@ -182,6 +182,72 @@ static void test_multi_tasking_bike_system() {
             .count());
 }
 
+// test_reset_multi_tasking_bike_system handler function
+Timer timer;
+static std::chrono::microseconds resetTime = std::chrono::microseconds::zero();
+static EventFlags eventFlags;
+static constexpr uint32_t kResetEventFlag = (1UL << 0);
+static void resetCallback() {
+    resetTime = timer.elapsed_time();
+    eventFlags.set(kResetEventFlag);
+}
+
+static void test_reset_multi_tasking_bike_system() {
+    // create the BikeSystem instance
+    multi_tasking::BikeSystem bikeSystem;
+
+    // run the bike system in a separate thread
+    Thread thread;
+    thread.start(callback(&bikeSystem, &multi_tasking::BikeSystem::start));
+
+    // let the bike system run for 2 secs
+    ThisThread::sleep_for(2s);
+
+    // test reset on BikeSystem
+    bikeSystem.getSpeedometer().setOnResetCallback(resetCallback);
+
+    // start the timer instance
+    timer.start();
+
+    // check for reset response time
+    constexpr uint8_t kNbrOfResets             = 10;
+    std::chrono::microseconds lastResponseTime = std::chrono::microseconds::zero();
+    for (uint8_t i = 0; i < kNbrOfResets; i++) {
+        // take time before reset
+        auto startTime = timer.elapsed_time();
+
+        // reset the BikeSystem
+        bikeSystem.onReset();
+
+        // wait for resetCallback to be called
+        eventFlags.wait_all(kResetEventFlag);
+
+        // get the response time and check it
+        auto responseTime = resetTime - startTime;
+
+        printf("Reset task: response time is %lld usecs\n", responseTime.count());
+
+        // cppcheck generates an internal error with 20us
+        constexpr std::chrono::microseconds kMaxExpectedResponseTime(20);
+        TEST_ASSERT_TRUE(responseTime.count() <= kMaxExpectedResponseTime.count());
+
+        constexpr uint64_t kDeltaUs = 4;
+        constexpr std::chrono::microseconds kMaxExpectedJitter(3);
+        if (i > 0) {
+            auto jitter = responseTime - lastResponseTime;
+            TEST_ASSERT_UINT64_WITHIN(
+                kDeltaUs, kMaxExpectedJitter.count(), std::abs(jitter.count()));
+        }
+        lastResponseTime = responseTime;
+
+        // let the bike system run for 2 secs
+        ThisThread::sleep_for(2s);
+    }
+
+    // stop the bike system
+    bikeSystem.stop();
+}
+
 static utest::v1::status_t greentea_setup(const size_t number_of_cases) {
     // Here, we specify the timeout (60s) and the host test (a built-in host test or the
     // name of our Python file)
@@ -195,7 +261,8 @@ static Case cases[] = {
     Case("test bike system", test_bike_system),
     Case("test bike system event queue", test_bike_system_event_queue),
     Case("test bike system with event", test_bike_system_with_event),
-    Case("test multi-tasking bike system", test_multi_tasking_bike_system)};
+    Case("test multi-tasking bike system", test_multi_tasking_bike_system),
+    Case("test reset multi-tasking bike system", test_reset_multi_tasking_bike_system)};
 
 static Specification specification(greentea_setup, cases);
 
