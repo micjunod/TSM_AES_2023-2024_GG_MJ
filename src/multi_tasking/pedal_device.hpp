@@ -31,7 +31,9 @@ namespace multi_tasking {
 
 class PedalDevice {
    public:
-    explicit PedalDevice(Timer& timer);  // NOLINT(runtime/references)
+    explicit PedalDevice(Timer& timer,
+                         mbed::Callback<void()> cbLeft,
+                         mbed::Callback<void()> cbRight);  // NOLINT(runtime/references)
 
     // make the class non copyable
     PedalDevice(PedalDevice&)            = delete;
@@ -40,10 +42,11 @@ class PedalDevice {
     // method called for updating the bike system
     std::chrono::milliseconds getCurrentRotationTime();
 
-   private:
     // callback functions
-    void onRight();
-    void onLeft();
+    void decrementPedal();
+    void incrementPedal();
+    
+   private:
     // private methods
     void increaseRotationSpeed();
     void decreaseRotationSpeed();
@@ -54,4 +57,4 @@ class PedalDevice {
     Timer& _timer;
 };
 
-}  // namespace static_scheduling_with_event
+}  // namespace multi_tasking

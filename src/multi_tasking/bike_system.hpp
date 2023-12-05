@@ -69,8 +69,12 @@ class BikeSystem {
     void displayTask1();
     void displayTask2();
 
-    // Function called when reset btn is pressed
+    // Function called when btn is pressed
     void onReset();
+    void onDown();
+    void onUp();
+    void onLeft();
+    void onRight();
 
     // stop flag, used for stopping the super-loop (set in stop())
     bool _stopFlag = false;
@@ -88,7 +92,6 @@ class BikeSystem {
 
     // data member that represents the device used for resetting
     ResetDevice _resetDevice;
-    std::chrono::microseconds _resetPressTime = 0us;
 
     // data member that represents the device display
     advembsof::DisplayDevice _displayDevice;
@@ -98,13 +101,13 @@ class BikeSystem {
     bike_computer::SensorDevice _sensorDevice;
     float _currentTemperature = 0.0f;
 
+    // Thread serving ISRs
+    Thread _thread;
+    EventQueue _eventQueueISR;
+
     // used for logging task info
     advembsof::TaskLogger _taskLogger;
     advembsof::CPULogger _cpuLogger;
-
-    Thread _deferredISRThread;
-    EventQueue _eventQueueISR;
-    
 };
 
-}  // namespace static_scheduling_with_event
+}  // namespace multi_tasking

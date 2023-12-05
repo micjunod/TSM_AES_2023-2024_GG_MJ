@@ -42,4 +42,4 @@ class ResetDevice {
     InterruptIn _resetButton;
 };
 
-}  // namespace static_scheduling_with_event
+}  // namespace multi_tasking

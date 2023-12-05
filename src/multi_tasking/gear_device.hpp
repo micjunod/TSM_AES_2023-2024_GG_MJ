@@ -31,7 +31,9 @@ namespace multi_tasking {
 
 class GearDevice {
    public:
-    explicit GearDevice(Timer& timer);  // NOLINT(runtime/references)
+    explicit GearDevice(Timer& timer,
+                        mbed::Callback<void()> cbUp,
+                        mbed::Callback<void()> cbDown);  // NOLINT(runtime/references)
 
     // make the class non copyable
     GearDevice(GearDevice&)            = delete;
@@ -41,13 +43,13 @@ class GearDevice {
     uint8_t getCurrentGear();
     uint8_t getCurrentGearSize() const;
 
+    void incrementGear();
+    void decrementGear();
+
    private:
-    // callback functions
-    void onUp();
-    void onDown();
     // data members
     uint8_t _currentGear = bike_computer::kMinGear;
     Timer& _timer;
 };
 
-}  // namespace static_scheduling_with_event
+}  // namespace multi_tasking

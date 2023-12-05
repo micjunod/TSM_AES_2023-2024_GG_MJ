@@ -174,9 +174,6 @@ void BikeSystem::temperatureTask() {
     auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
         _timer.elapsed_time() - taskStartTime);
 
-    // simulate task computation by waiting for the required task computation time
-    ThisThread::sleep_for(kTemperatureTaskComputationTime - elapsedTimeTask);
-
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kTemperatureTaskIndex, taskStartTime);
 }
@@ -210,10 +207,6 @@ void BikeSystem::displayTask1() {
     auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
         _timer.elapsed_time() - taskStartTime);
 
-    // simulate task computation by waiting for the required task computation time
-
-    ThisThread::sleep_for(kDisplayTask1ComputationTime - elapsedTimeTask);
-
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kDisplayTask1Index, taskStartTime);
 }
@@ -225,10 +218,6 @@ void BikeSystem::displayTask2() {
 
     auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
         _timer.elapsed_time() - taskStartTime);
-
-    // simulate task computation by waiting for the required task computation time
-
-    ThisThread::sleep_for(kDisplayTask2ComputationTime - elapsedTimeTask);
 
     _taskLogger.logPeriodAndExecutionTime(
         _timer, advembsof::TaskLogger::kDisplayTask2Index, taskStartTime);
