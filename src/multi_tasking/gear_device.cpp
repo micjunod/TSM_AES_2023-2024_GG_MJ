@@ -39,10 +39,7 @@ namespace multi_tasking {
 // definition of task execution time
 static constexpr std::chrono::microseconds kTaskRunTime = 100000us;
 
-GearDevice::GearDevice(Timer& timer,
-                       mbed::Callback<void()> cbUp,
-                       mbed::Callback<void()> cbDown)
-    : _timer(timer) {
+GearDevice::GearDevice(mbed::Callback<void()> cbUp, mbed::Callback<void()> cbDown) {
     disco::Joystick::getInstance().setDownCallback(cbDown);
     disco::Joystick::getInstance().setUpCallback(cbUp);
 }

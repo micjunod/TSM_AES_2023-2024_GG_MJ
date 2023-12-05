@@ -31,7 +31,7 @@ namespace multi_tasking {
 
 class PedalDevice {
    public:
-    explicit PedalDevice(Timer& timer,
+    explicit PedalDevice(
                          mbed::Callback<void()> cbLeft,
                          mbed::Callback<void()> cbRight);  // NOLINT(runtime/references)
 
@@ -54,7 +54,6 @@ class PedalDevice {
     // data members
     std::chrono::milliseconds _pedalRotationTime =
         bike_computer::kInitialPedalRotationTime;
-    Timer& _timer;
 };
 
 }  // namespace multi_tasking

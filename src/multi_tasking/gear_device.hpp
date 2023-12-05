@@ -31,7 +31,7 @@ namespace multi_tasking {
 
 class GearDevice {
    public:
-    explicit GearDevice(Timer& timer,
+    explicit GearDevice(
                         mbed::Callback<void()> cbUp,
                         mbed::Callback<void()> cbDown);  // NOLINT(runtime/references)
 
@@ -49,7 +49,6 @@ class GearDevice {
    private:
     // data members
     uint8_t _currentGear = bike_computer::kMinGear;
-    Timer& _timer;
 };
 
 }  // namespace multi_tasking

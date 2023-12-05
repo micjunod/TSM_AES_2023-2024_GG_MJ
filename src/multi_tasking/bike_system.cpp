@@ -59,10 +59,8 @@ BikeSystem::BikeSystem()
       _displayDevice(),
       _speedometer(_timer),
       _sensorDevice(),
-      _gearDevice(
-          _timer, callback(this, &BikeSystem::onUp), callback(this, &BikeSystem::onDown)),
-      _pedalDevice(_timer,
-                   callback(this, &BikeSystem::onLeft),
+      _gearDevice(callback(this, &BikeSystem::onUp), callback(this, &BikeSystem::onDown)),
+      _pedalDevice(callback(this, &BikeSystem::onLeft),
                    callback(this, &BikeSystem::onRight)),
       _cpuLogger(_timer) {}
 
@@ -160,14 +158,14 @@ void BikeSystem::onLeft() {
     _pedalDevice.incrementPedal();
     Event<void()> speedDistanceEvent(&_eventQueueISR,
                                      callback(this, &BikeSystem::speedDistanceTask));
-    gearEvent.post();
+    speedDistanceEvent.post();
 }
 
 void BikeSystem::onRight() {
     _pedalDevice.decrementPedal();
     Event<void()> speedDistanceEvent(&_eventQueueISR,
                                      callback(this, &BikeSystem::speedDistanceTask));
-    gearEvent.post();
+    speedDistanceEvent.post();
 }
 
 void BikeSystem::speedDistanceTask() {
