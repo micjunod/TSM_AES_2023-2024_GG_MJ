@@ -19,6 +19,7 @@
 #define TRACE_GROUP "MAIN"
 #endif  // MBED_CONF_MBED_TRACE_ENABLE
 
+#include "multi_tasking/bike_system.hpp"
 #include "static_scheduling/bike_system.hpp"
 #include "static_scheduling_with_event/bike_system.hpp"
 
@@ -37,7 +38,7 @@ int main() {
     bool led = false;
 #endif
 
-    static_scheduling_with_event::BikeSystem bikeSystem;
+    multi_tasking::BikeSystem bikeSystem;
     bikeSystem.start();
 
     while (true) {
