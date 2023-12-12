@@ -87,6 +87,10 @@ class Speedometer {
     uint8_t _gearSize    = 1;
 
     Thread _thread;
+
+#if defined(MBED_TEST_MODE)
+    mbed::Callback<void()> _resetCb;
+#endif
 };
 
 }  // namespace bike_computer

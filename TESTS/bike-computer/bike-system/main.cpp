@@ -243,6 +243,7 @@ static void test_reset_multi_tasking_bike_system() {
     // stop the bike system
     bikeSystem.stop();
 }
+
 static utest::v1::status_t greentea_setup(const size_t number_of_cases) {
     // Here, we specify the timeout (60s) and the host test (a built-in host test or the
     // name of our Python file)
@@ -256,9 +257,8 @@ static Case cases[] = {
     Case("test bike system", test_bike_system),
     Case("test bike system with event queue", test_bike_system_event_queue),
     Case("test bike system with event", test_bike_system_with_event),
-    Case("test multi-tasking bike system", test_multi_tasking_bike_system)
-    // Case("test reset multi-tasking bike system", test_reset_multi_tasking_bike_system)
-};
+    Case("test multi-tasking bike system", test_multi_tasking_bike_system),
+    Case("test reset multi-tasking bike system", test_reset_multi_tasking_bike_system)};
 
 static Specification specification(greentea_setup, cases);
 
