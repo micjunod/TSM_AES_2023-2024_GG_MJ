@@ -256,12 +256,16 @@ static void test_gear_multi_tasking_bike_system() {
     constexpr uint8_t kNbrOfGear = 5;
     for (uint8_t i = 0; i < kNbrOfGear; i++) {
         bikeSystem.onUp();
-        TEST_ASSERT_EQUAL(i + 1, bikeSystem.getCurrentGear());
+        // Sleep used to be sure the change is effective
+        ThisThread::sleep_for(400ms);
+        TEST_ASSERT_EQUAL(i + 2, bikeSystem.getCurrentGear());
     }
-    // for (uint8_t i = 0; i < kNbrOfGear; i++) {
-    //     bikeSystem.onDown();
-    //     TEST_ASSERT_EQUAL(i+1,bikeSystem.getCurrentGear());
-    // }
+    for (uint8_t i = kNbrOfGear; i > 0; i--) {
+        bikeSystem.onDown();
+        // Sleep used to be sure the change is effective
+        ThisThread::sleep_for(400ms);
+        TEST_ASSERT_EQUAL(i, bikeSystem.getCurrentGear());
+    }
     bikeSystem.stop();
 }
 
