@@ -106,6 +106,7 @@ void BikeSystem::stop() { core_util_atomic_store_bool(&_stopFlag, true); }
 #if defined(MBED_TEST_MODE)
 const advembsof::TaskLogger& BikeSystem::getTaskLogger() { return _taskLogger; }
 bike_computer::Speedometer& BikeSystem::getSpeedometer() { return _speedometer; }
+const uint8_t BikeSystem::getCurrentGear() { return _currentGear; }
 #endif  // defined(MBED_TEST_MODE)
 
 void BikeSystem::init() {
