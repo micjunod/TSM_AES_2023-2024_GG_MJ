@@ -201,7 +201,6 @@ void BikeSystem::onReset() {
 
 void BikeSystem::resetTask() { _speedometer.reset(); }
 
-// TODO(truc): atomic
 void BikeSystem::displayTask1() {
     auto taskStartTime = _timer.elapsed_time();
 
@@ -216,7 +215,6 @@ void BikeSystem::displayTask1() {
         _timer, advembsof::TaskLogger::kDisplayTask1Index, taskStartTime);
 }
 
-// TODO(truc): atomic
 void BikeSystem::displayTask2() {
     auto taskStartTime = _timer.elapsed_time();
 
