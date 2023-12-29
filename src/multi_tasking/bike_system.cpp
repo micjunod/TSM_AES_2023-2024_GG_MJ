@@ -199,7 +199,7 @@ void BikeSystem::displayTask() {
     _displayDevice.displaySpeed(_currentSpeed);
     _displayDevice.displayDistance(_traveledDistance);
     _displayDevice.displayTemperature(_currentTemperature);
-  
+
     auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
         _timer.elapsed_time() - taskStartTime);
 

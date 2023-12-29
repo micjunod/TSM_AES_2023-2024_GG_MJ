@@ -47,7 +47,6 @@ class GearDevice {
    private:
     // data members
     uint8_t _currentGear = bike_computer::kMinGear;
-    Timer& _timer;
     Mutex _gearMutex;
 };
 

@@ -165,7 +165,7 @@ static void test_multi_tasking_bike_system() {
     // allow for 2 msecs offset (with EventQueue)
     // I changed it to 2.1 msecs because off strange behaviour (see README)
     uint64_t kDeltaUs = 2100;
-  
+
     TEST_ASSERT_UINT64_WITHIN(
         kDeltaUs,
         taskPeriods[advembsof::TaskLogger::kTemperatureTaskIndex].count(),
