@@ -45,15 +45,19 @@ GearDevice::GearDevice(mbed::Callback<void()> cbUp, mbed::Callback<void()> cbDow
 }
 
 void GearDevice::incrementGear() {
+    _gearMutex.lock();
     if (_currentGear < bike_computer::kMaxGear) {
         _currentGear++;
     }
+    _gearMutex.unlock();
 }
 
 void GearDevice::decrementGear() {
+    _gearMutex.lock();
     if (_currentGear > bike_computer::kMinGear) {
         _currentGear--;
     }
+    _gearMutex.unlock();
 }
 
 uint8_t GearDevice::getCurrentGear() { return _currentGear; }

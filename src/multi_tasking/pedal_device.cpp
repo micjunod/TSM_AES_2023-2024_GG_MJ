@@ -20,14 +20,18 @@ std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
 }
 
 void PedalDevice::decrementPedal() {
+    _pedalMutex.lock();
     if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
         _pedalRotationTime -= bike_computer::kDeltaPedalRotationTime;
     }
+    _pedalMutex.unlock();
 }
 
 void PedalDevice::incrementPedal() {
+    _pedalMutex.lock();
     if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
         _pedalRotationTime += bike_computer::kDeltaPedalRotationTime;
     }
+    _pedalMutex.unlock();
 }
 }  // namespace multi_tasking
