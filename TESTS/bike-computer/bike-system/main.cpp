@@ -26,6 +26,7 @@
 
 #include "greentea-client/test_env.h"
 #include "mbed.h"
+#include "multi_tasking/bike_system.hpp"
 #include "static_scheduling/bike_system.hpp"
 #include "static_scheduling_with_event/bike_system.hpp"
 #include "task_logger.hpp"
@@ -58,7 +59,6 @@ static void test_bike_system() {
         800000us, 400000us, 1600000us, 800000us, 1600000us, 1600000us};
 
     // allow for 2 msecs offset
-    // I changed it to 2.1 msecs because off strange behaviour (see README)
     uint64_t deltaUs = 2100;
     for (uint8_t taskIndex = 0; taskIndex < advembsof::TaskLogger::kNbrOfTasks;
          taskIndex++) {
@@ -71,7 +71,6 @@ static void test_bike_system() {
             taskComputationTimes[taskIndex].count(),
             bikeSystem.getTaskLogger().getComputationTime(taskIndex).count());
     }
-    TEST_ASSERT(true);
 }
 
 // test_bike_system_event_queue handler function
@@ -98,12 +97,11 @@ static void test_bike_system_event_queue() {
         800000us, 400000us, 1600000us, 800000us, 1600000us, 1600000us};
 
     // allow for 2 msecs offset (with EventQueue)
-    // I changed it to 2.1 msecs because off strange behaviour (see README)
-    uint64_t deltaUs = 2100;
+    constexpr uint64_t kDeltaUs = 2100;
     for (uint8_t taskIndex = 0; taskIndex < advembsof::TaskLogger::kNbrOfTasks;
          taskIndex++) {
         TEST_ASSERT_UINT64_WITHIN(
-            deltaUs,
+            kDeltaUs,
             taskPeriods[taskIndex].count(),
             bikeSystem.getTaskLogger().getPeriod(taskIndex).count());
     }
@@ -132,12 +130,11 @@ static void test_bike_system_with_event() {
         800000us, 400000us, 1600000us, 800000us, 1600000us, 1600000us};
 
     // allow for 2 msecs offset (with EventQueue)
-    // I changed it to 2.1 msecs because off strange behaviour (see README)
-    uint64_t deltaUs = 2100;
+    constexpr uint64_t kDeltaUs = 2100;
     for (uint8_t taskIndex = 0; taskIndex < advembsof::TaskLogger::kNbrOfTasks;
          taskIndex++) {
         TEST_ASSERT_UINT64_WITHIN(
-            deltaUs,
+            kDeltaUs,
             taskPeriods[taskIndex].count(),
             bikeSystem.getTaskLogger().getPeriod(taskIndex).count());
     }
@@ -168,6 +165,7 @@ static void test_multi_tasking_bike_system() {
     // allow for 2 msecs offset (with EventQueue)
     // I changed it to 2.1 msecs because off strange behaviour (see README)
     uint64_t kDeltaUs = 2100;
+  
     TEST_ASSERT_UINT64_WITHIN(
         kDeltaUs,
         taskPeriods[advembsof::TaskLogger::kTemperatureTaskIndex].count(),
@@ -248,6 +246,31 @@ static void test_reset_multi_tasking_bike_system() {
     bikeSystem.stop();
 }
 
+static void test_gear_multi_tasking_bike_system() {
+    // create the BikeSystem instance
+    multi_tasking::BikeSystem bikeSystem;
+
+    // run the bike system in a separate thread
+    Thread thread;
+    thread.start(callback(&bikeSystem, &multi_tasking::BikeSystem::start));
+
+    // check for reset response time
+    constexpr uint8_t kNbrOfGear = 5;
+    for (uint8_t i = 0; i < kNbrOfGear; i++) {
+        bikeSystem.onUp();
+        // Sleep used to be sure the change is effective
+        ThisThread::sleep_for(400ms);
+        TEST_ASSERT_EQUAL(i + 2, bikeSystem.getCurrentGear());
+    }
+    for (uint8_t i = kNbrOfGear; i > 0; i--) {
+        bikeSystem.onDown();
+        // Sleep used to be sure the change is effective
+        ThisThread::sleep_for(400ms);
+        TEST_ASSERT_EQUAL(i, bikeSystem.getCurrentGear());
+    }
+    bikeSystem.stop();
+}
+
 static utest::v1::status_t greentea_setup(const size_t number_of_cases) {
     // Here, we specify the timeout (60s) and the host test (a built-in host test or the
     // name of our Python file)
@@ -259,10 +282,11 @@ static utest::v1::status_t greentea_setup(const size_t number_of_cases) {
 // List of test cases in this file
 static Case cases[] = {
     Case("test bike system", test_bike_system),
-    Case("test bike system event queue", test_bike_system_event_queue),
+    Case("test bike system with event queue", test_bike_system_event_queue),
     Case("test bike system with event", test_bike_system_with_event),
     Case("test multi-tasking bike system", test_multi_tasking_bike_system),
-    Case("test reset multi-tasking bike system", test_reset_multi_tasking_bike_system)};
+    Case("test reset multi-tasking bike system", test_reset_multi_tasking_bike_system),
+    Case("test gear multi-tasking bike system", test_gear_multi_tasking_bike_system)};
 
 static Specification specification(greentea_setup, cases);
 

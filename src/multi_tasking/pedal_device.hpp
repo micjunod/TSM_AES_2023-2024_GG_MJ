@@ -31,7 +31,7 @@ namespace multi_tasking {
 
 class PedalDevice {
    public:
-    explicit PedalDevice(Timer& timer,
+    explicit PedalDevice(
                          mbed::Callback<void()> cbLeft,
                          mbed::Callback<void()> cbRight);  // NOLINT(runtime/references)
 

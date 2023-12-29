@@ -55,8 +55,17 @@ class BikeSystem {
     // method called for stopping the system
     void stop();
 
+    // Function called when btn is pressed
+    void onReset();
+    void onDown();
+    void onUp();
+    void onLeft();
+    void onRight();
+
 #if defined(MBED_TEST_MODE)
     const advembsof::TaskLogger& getTaskLogger();
+    bike_computer::Speedometer& getSpeedometer();
+    const uint8_t getCurrentGear();
 #endif  // defined(MBED_TEST_MODE)
 
    private:
@@ -66,15 +75,7 @@ class BikeSystem {
     void speedDistanceTask();
     void temperatureTask();
     void resetTask();
-    void displayTask1();
-    void displayTask2();
-
-    // Function called when btn is pressed
-    void onReset();
-    void onDown();
-    void onUp();
-    void onLeft();
-    void onRight();
+    void displayTask();
 
     // stop flag, used for stopping the super-loop (set in stop())
     bool _stopFlag = false;

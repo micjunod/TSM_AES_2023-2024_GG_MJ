@@ -59,6 +59,7 @@ class Speedometer {
     float getWheelCircumference() const;
     float getTraySize() const;
     std::chrono::milliseconds getCurrentPedalRotationTime() const;
+    void setOnResetCallback(mbed::Callback<void()> cb);
 #endif  // defined(MBED_TEST_MODE)
 
    private:
@@ -86,6 +87,10 @@ class Speedometer {
     uint8_t _gearSize    = 1;
 
     Thread _thread;
+
+#if defined(MBED_TEST_MODE)
+    mbed::Callback<void()> _resetCb;
+#endif
 };
 
 }  // namespace bike_computer

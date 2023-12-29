@@ -10,10 +10,7 @@
 namespace multi_tasking {
 static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
 
-PedalDevice::PedalDevice(Timer& timer,
-                         mbed::Callback<void()> cbLeft,
-                         mbed::Callback<void()> cbRight)
-    : _timer(timer) {
+PedalDevice::PedalDevice(mbed::Callback<void()> cbLeft, mbed::Callback<void()> cbRight) {
     disco::Joystick::getInstance().setRightCallback(cbRight);
     disco::Joystick::getInstance().setLeftCallback(cbLeft);
 }
