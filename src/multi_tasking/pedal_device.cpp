@@ -6,6 +6,9 @@
 
 #include "joystick.hpp"
 #include "mbed_trace.h"
+#if MBED_CONF_MBED_TRACE_ENABLE
+#define TRACE_GROUP "PedalDevice"
+#endif  // MBED_CONF_MBED_TRACE_ENABLE
 
 namespace multi_tasking {
 static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
@@ -13,25 +16,26 @@ static constexpr std::chrono::microseconds kTaskRunTime = 200000us;
 PedalDevice::PedalDevice(mbed::Callback<void()> cbLeft, mbed::Callback<void()> cbRight) {
     disco::Joystick::getInstance().setRightCallback(cbRight);
     disco::Joystick::getInstance().setLeftCallback(cbLeft);
+    tr_info("%" PRIu64, _pedalRotationTime);
 }
 
 std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
-    return _pedalRotationTime;
+    return std::chrono::milliseconds(core_util_atomic_load_u64(&_pedalRotationTime));
 }
 
 void PedalDevice::decrementPedal() {
-    _pedalMutex.lock();
-    if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
-        _pedalRotationTime -= bike_computer::kDeltaPedalRotationTime;
+    if (core_util_atomic_load_u64(&_pedalRotationTime) >
+        bike_computer::kMinPedalRotationTime.count()) {
+        core_util_atomic_decr_u64(&_pedalRotationTime,
+                                  bike_computer::kDeltaPedalRotationTime.count());
     }
-    _pedalMutex.unlock();
 }
 
 void PedalDevice::incrementPedal() {
-    _pedalMutex.lock();
-    if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
-        _pedalRotationTime += bike_computer::kDeltaPedalRotationTime;
+    if (core_util_atomic_load_u64(&_pedalRotationTime) <
+        bike_computer::kMaxPedalRotationTime.count()) {
+        core_util_atomic_incr_u64(&_pedalRotationTime,
+                                  bike_computer::kDeltaPedalRotationTime.count());
     }
-    _pedalMutex.unlock();
 }
 }  // namespace multi_tasking

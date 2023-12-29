@@ -45,27 +45,23 @@ GearDevice::GearDevice(mbed::Callback<void()> cbUp, mbed::Callback<void()> cbDow
 }
 
 void GearDevice::incrementGear() {
-    _gearMutex.lock();
-    if (_currentGear < bike_computer::kMaxGear) {
-        _currentGear++;
+    if (core_util_atomic_load_u8(&_currentGear) < bike_computer::kMaxGear) {
+        core_util_atomic_incr_u8(&_currentGear, 1);
     }
-    _gearMutex.unlock();
 }
 
 void GearDevice::decrementGear() {
-    _gearMutex.lock();
-    if (_currentGear > bike_computer::kMinGear) {
-        _currentGear--;
+    if (core_util_atomic_load_u8(&_currentGear) > bike_computer::kMinGear) {
+        core_util_atomic_decr_u8(&_currentGear, 1);
     }
-    _gearMutex.unlock();
 }
 
-uint8_t GearDevice::getCurrentGear() { return _currentGear; }
+uint8_t GearDevice::getCurrentGear() { return core_util_atomic_load_u8(&_currentGear); }
 
 uint8_t GearDevice::getCurrentGearSize() const {
     // simulate task computation by waiting for the required task run time
     // wait_us(kTaskRunTime.count());
-    return bike_computer::kMaxGearSize - _currentGear;
+    return bike_computer::kMaxGearSize - core_util_atomic_load_u8(&_currentGear);
 }
 
 }  // namespace multi_tasking

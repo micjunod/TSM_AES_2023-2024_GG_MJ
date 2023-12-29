@@ -31,8 +31,7 @@ namespace multi_tasking {
 
 class PedalDevice {
    public:
-    explicit PedalDevice(
-                         mbed::Callback<void()> cbLeft,
+    explicit PedalDevice(mbed::Callback<void()> cbLeft,
                          mbed::Callback<void()> cbRight);  // NOLINT(runtime/references)
 
     // make the class non copyable
@@ -45,16 +44,14 @@ class PedalDevice {
     // callback functions
     void decrementPedal();
     void incrementPedal();
-    
+
    private:
     // private methods
     void increaseRotationSpeed();
     void decreaseRotationSpeed();
 
     // data members
-    std::chrono::milliseconds _pedalRotationTime =
-        bike_computer::kInitialPedalRotationTime;
-    Mutex _pedalMutex;
+    uint64_t _pedalRotationTime = bike_computer::kInitialPedalRotationTime.count();
 };
 
 }  // namespace multi_tasking
