@@ -78,8 +78,10 @@ float Speedometer::getDistance() {
 }
 
 void Speedometer::reset() {
+    _totalDistanceMutex.lock();
     _totalDistance = 0.0f;
-    _lastTime      = _timer.elapsed_time();
+    _totalDistanceMutex.unlock();
+    _lastTime = _timer.elapsed_time();
 }
 
 #if defined(MBED_TEST_MODE)
