@@ -1,6 +1,7 @@
 {
     "macros": [
-      "MBED_CONF_MBED_TRACE_FEA_IPV6=0"
+      "MBED_CONF_MBED_TRACE_FEA_IPV6=0",
+      "RTX_STACK_CHECK=1"
     ],
     "config": {
       "main-stack-size": {

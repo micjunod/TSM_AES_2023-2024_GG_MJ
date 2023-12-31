@@ -6,6 +6,7 @@
   - [Exercise 3 : Memap](#exercise-3--memap)
   - [Exercise 4 : Different output library](#exercise-4--different-output-library)
   - [Exercise 5 : Dynamic memory analysis](#exercise-5--dynamic-memory-analysis)
+  - [Exercice 6 : Stack OVerflow](#exercice-6--stack-overflow)
 
 ## Exercise 1 : AXI-SRAM
 
@@ -95,7 +96,6 @@ Total Flash memory (text + data): 333502(+4205) bytes
 ```
 
 C'EST CHELOU, AU LIEUX DE GAGNER DE LA PLACE, ON EN A PERDU
-
 
 ## Exercise 5 : Dynamic memory analysis
 
@@ -194,6 +194,7 @@ Ensuite de manière régulière, les différences sont affichées :
 [DBG ][MemoryLogger]: Cumulative Stack Info:
 [DBG ][MemoryLogger]: Thread Stack Info:
 ```
+
 Cela est un résultat prometteur car il signifie que notre programme ne consomme pas de mémoire (ni dans la Pile, ni dans le Tas) supplémentaire.
 
 Néanmoins, la première fois SEULEUEMENT que l'on presse le bouton de droite, ce message s'affiche :
@@ -206,4 +207,39 @@ Néanmoins, la première fois SEULEUEMENT que l'on presse le bouton de droite, c
 [DBG ][MemoryLogger]:   Thread: 3
 [DBG ][MemoryLogger]:           Thread Id: 0x240019c4 with name ISR_Thread
 [DBG ][MemoryLogger]:           Maximum number of bytes used on the stack increased by 184 to 448 bytes (stack size is 4096 bytes)
+```
+
+## Exercice 6 : Stack OVerflow
+
+Mon implémentation pour effectuer un stack overflow (`voir bike_system.cpp` lignes 75 à 82) donne l'erreur suivante :
+
+```
+++ MbedOS Error Info ++
+Error Status: 0x80020125 Code: 293 Module: 2
+Error Message: CMSIS-RTOS error: Stack overflow
+Location: 0x80140C1
+File: mbed_rtx_handlers.c+60
+Error Value: 0x1
+Current Thread: main Id: 0x240026B8 Entry: 0x80134C9 StackSize: 0x1000 StackMem: 0x24000D28 SP: 0x2407FF1C
+Next:
+main  State: 0x2 Entry: 0x080134C9 Stack Size: 0x00001000 Mem: 0x24000D28 SP: 0x240010F8
+Ready:
+rtx_idle  State: 0x1 Entry: 0x08014231 Stack Size: 0x00000380 Mem: 0x24002700 SP: 0x24002A30
+Wait:
+rtx_timer  State: 0x83 Entry: 0x08014D81 Stack Size: 0x00000300 Mem: 0x24002A80 SP: 0x24002D20
+Delay:
+Stack_Overflow_Thread  State: 0x43 Entry: 0x0800D0E1 Stack Size: 0x00001000 Mem: 0x24004700 SP: 0x24005570
+For more info, visit: https://mbed.com/s/error?error=0x80020125&osver=61700&core=0x411FC271&comp=1&ver=6160001&tgt=DISCO_H747I
+-- MbedOS Error Info --
+```
+
+JSP OU EST IMPLEMENTE LA DETECTION DE STACK OVERFLOW DANS RTOS
+
+On peut faire soit même un stack overflow très simplement. J'ai opté pour une fonction récursive sans condition d'arret:
+
+```cpp
+int otherStackOverflow(int i) {
+    tr_warn("%d", i);
+    return otherStackOverflow(i + 1);
+}
 ```

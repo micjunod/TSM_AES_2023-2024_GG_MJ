@@ -33,6 +33,7 @@
 
 #include "memory_fragmenter.hpp"
 #include "memory_leak.hpp"
+#include "memory_stack_overflow.hpp"
 
 namespace multi_tasking {
 
@@ -64,12 +65,28 @@ BikeSystem::BikeSystem()
                    callback(this, &BikeSystem::onRight)),
       _cpuLogger(_timer) {}
 
+int otherStackOverflow(int i) {
+    tr_warn("%d", i);
+    return otherStackOverflow(i + 1);
+}
+
 void BikeSystem::start() {
     tr_info("Starting multi tasking");
 
-    // Used to verify the heap fragmentation
+    // Used to verify the heap fragmentation error
     // MemoryFragmenter fragmenter;
     // fragmenter.fragmentMemory();
+
+    // Used to verify the stack overflow error
+    // MemoryStackOverflow overflow;
+    // Thread stackThread(osPriorityNormal, OS_STACK_SIZE, nullptr,
+    // "Stack_Overflow_Thread"); EventQueue eventQoverflow;
+    // stackThread.start(callback(&eventQoverflow, &EventQueue::dispatch_forever));
+    // Event<void()> overflowEvent(&eventQoverflow, callback(&overflow,
+    // &MemoryStackOverflow::allocateOnStack)); overflowEvent.period(1);
+    // overflowEvent.post();
+
+    otherStackOverflow(1);
 
     init();
 
@@ -190,7 +207,7 @@ void BikeSystem::speedDistanceTask() {
 }
 
 void BikeSystem::temperatureTask() {
-    // Used to verify the memory leak
+    // Used to verify the memory leak error
     // MemoryLeak* leak = new MemoryLeak();
     // leak->use();
 
