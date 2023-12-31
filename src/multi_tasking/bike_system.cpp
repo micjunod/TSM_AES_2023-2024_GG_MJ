@@ -65,10 +65,10 @@ BikeSystem::BikeSystem()
                    callback(this, &BikeSystem::onRight)),
       _cpuLogger(_timer) {}
 
-int otherStackOverflow(int i) {
-    tr_warn("%d", i);
-    return otherStackOverflow(i + 1);
-}
+// int otherStackOverflow(int i) {
+//     tr_warn("%d", i);
+//     return otherStackOverflow(i + 1);
+// }
 
 void BikeSystem::start() {
     tr_info("Starting multi tasking");
@@ -86,7 +86,8 @@ void BikeSystem::start() {
     // &MemoryStackOverflow::allocateOnStack)); overflowEvent.period(1);
     // overflowEvent.post();
 
-    otherStackOverflow(1);
+    // Custom function to realize a stack overflow
+    // otherStackOverflow(1);
 
     init();
 
