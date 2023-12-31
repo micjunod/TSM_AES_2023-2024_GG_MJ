@@ -26,6 +26,7 @@
 
 // from advembsof
 #include "cpu_logger.hpp"
+#include "memory_logger.hpp"
 #include "display_device.hpp"
 #include "task_logger.hpp"
 
@@ -109,6 +110,7 @@ class BikeSystem {
     // used for logging task info
     advembsof::TaskLogger _taskLogger;
     advembsof::CPULogger _cpuLogger;
+    advembsof::MemoryLogger _memoryLogger;
 };
 
 }  // namespace multi_tasking

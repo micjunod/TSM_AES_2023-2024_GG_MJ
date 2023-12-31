@@ -15,9 +15,11 @@
         "platform.default-serial-baud-rate": 115200,
         "platform.stdio-buffered-serial": true,
         "platform.all-stats-enabled":true,
-        "target.printf_lib":"minimal-printf",
+        "target.printf_lib":"std",
         "platform.minimal-printf-enable-floating-point": true,
-        "platform.minimal-printf-set-floating-point-max-decimals": 2
+        "platform.minimal-printf-set-floating-point-max-decimals": 2,
+        "platform.error-all-threads-info":  1,
+        "platform.error-filename-capture-enabled": 1
       },
       "DISCO_H747I": {
         "mbed-trace.enable": true,
