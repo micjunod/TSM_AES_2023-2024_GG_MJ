@@ -27,6 +27,8 @@
 #include "update-client/uc_error_code.hpp"
 #include "update-client/usb_serial_uc.hpp"
 
+using namespace update_client;
+
 // Blinking rate in milliseconds
 #define BLINKING_RATE 500ms
 
