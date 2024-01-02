@@ -51,14 +51,14 @@ int main() {
     randomNumber = rand();  // NOLINT
     tr_info("This is a random number %u", randomNumber);
 
-    FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
+    /*FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
     USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
     UCErrorCode rc = usbSerialUpdateClient.start();
     if (rc != UCErrorCode::UC_ERR_NONE) {
         tr_error("Cannot initialize update client: %d", rc);
     } else {
         tr_info("Update client started");
-    }
+    }*/
 
     tr_info("VERSION : 1");
 
