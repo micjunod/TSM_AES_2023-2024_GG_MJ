@@ -52,9 +52,9 @@ int main() {
     tr_info("This is a random number %u", randomNumber);
 
     FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
-    update_client::USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
-    update_client::UCErrorCode rc = usbSerialUpdateClient.start();
-    if (rc != update_client::UCErrorCode::UC_ERR_NONE) {
+    USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
+    UCErrorCode rc = usbSerialUpdateClient.start();
+    if (rc != UCErrorCode::UC_ERR_NONE) {
         tr_error("Cannot initialize update client: %d", rc);
     } else {
         tr_info("Update client started");
