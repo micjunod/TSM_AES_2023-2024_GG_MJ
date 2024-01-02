@@ -31,6 +31,10 @@
 #define TRACE_GROUP "BikeSystem"
 #endif  // MBED_CONF_MBED_TRACE_ENABLE
 
+#include "memory_fragmenter.hpp"
+#include "memory_leak.hpp"
+#include "memory_stack_overflow.hpp"
+
 namespace multi_tasking {
 
 static constexpr std::chrono::milliseconds kGearTaskPeriod                   = 800ms;
@@ -51,7 +55,7 @@ static constexpr std::chrono::milliseconds kTemperatureTaskComputationTime   = 1
 static constexpr std::chrono::milliseconds kMajorCycleDuration               = 1600ms;
 
 BikeSystem::BikeSystem()
-    : _thread(osPriorityNormal),
+    : _thread(osPriorityNormal, OS_STACK_SIZE, nullptr, "ISR_Thread"),
       _resetDevice(callback(this, &BikeSystem::onReset)),
       _displayDevice(),
       _speedometer(_timer),
@@ -61,14 +65,37 @@ BikeSystem::BikeSystem()
                    callback(this, &BikeSystem::onRight)),
       _cpuLogger(_timer) {}
 
+// int otherStackOverflow(int i) {
+//     tr_warn("%d", i);
+//     return otherStackOverflow(i + 1);
+// }
+
 void BikeSystem::start() {
     tr_info("Starting multi tasking");
+
+    // Used to verify the heap fragmentation error
+    // MemoryFragmenter fragmenter;
+    // fragmenter.fragmentMemory();
+
+    // Used to verify the stack overflow error
+    // MemoryStackOverflow overflow;
+    // Thread stackThread(osPriorityNormal, OS_STACK_SIZE, nullptr,
+    // "Stack_Overflow_Thread"); EventQueue eventQoverflow;
+    // stackThread.start(callback(&eventQoverflow, &EventQueue::dispatch_forever));
+    // Event<void()> overflowEvent(&eventQoverflow, callback(&overflow,
+    // &MemoryStackOverflow::allocateOnStack)); overflowEvent.period(1);
+    // overflowEvent.post();
+
+    // Custom function to realize a stack overflow
+    // otherStackOverflow(1);
 
     init();
 
     osStatus status =
         _thread.start(callback(&_eventQueueISR, &EventQueue::dispatch_forever));
     tr_debug("Thread %s started with status %d", _thread.get_name(), status);
+
+    _memoryLogger.getAndPrintStatistics();
 
     /*
     Ya deux Queue : une pr le thread main pour lancer les taches périodiques (deja fait)
@@ -91,6 +118,15 @@ void BikeSystem::start() {
     displayEvent.post();
 
 #if !MBED_TEST_MODE
+    // event for dynamic memory profiling
+    Event<void()> memoryStatsEvent(
+        &eventQueuePeriodic,
+        callback(&_memoryLogger, &advembsof::MemoryLogger::printDiffs));
+    memoryStatsEvent.delay(kMajorCycleDuration);
+    memoryStatsEvent.period(kMajorCycleDuration);
+    memoryStatsEvent.post();
+
+    // legacy event printing cpu stats
     /*Event<void()> cpuStatsEvent(&eventQueuePeriodic,
                                 callback(&_cpuLogger, &advembsof::CPULogger::printStats));
     cpuStatsEvent.delay(kMajorCycleDuration);
@@ -105,7 +141,8 @@ void BikeSystem::stop() { core_util_atomic_store_bool(&_stopFlag, true); }
 
 #if defined(MBED_TEST_MODE)
 const advembsof::TaskLogger& BikeSystem::getTaskLogger() { return _taskLogger; }
-bike_computer::Speedometer& getSpeedometer();
+bike_computer::Speedometer& BikeSystem::getSpeedometer() { return _speedometer; }
+const uint8_t BikeSystem::getCurrentGear() { return _currentGear; }
 #endif  // defined(MBED_TEST_MODE)
 
 void BikeSystem::init() {
@@ -171,6 +208,10 @@ void BikeSystem::speedDistanceTask() {
 }
 
 void BikeSystem::temperatureTask() {
+    // Used to verify the memory leak error
+    // MemoryLeak* leak = new MemoryLeak();
+    // leak->use();
+
     auto taskStartTime = _timer.elapsed_time();
 
     // no need to protect access to data members (single threaded)
@@ -190,7 +231,6 @@ void BikeSystem::onReset() {
 
 void BikeSystem::resetTask() { _speedometer.reset(); }
 
-// TODO(truc): atomic
 void BikeSystem::displayTask() {
     auto taskStartTime = _timer.elapsed_time();
 
@@ -199,6 +239,7 @@ void BikeSystem::displayTask() {
     _displayDevice.displaySpeed(_currentSpeed);
     _displayDevice.displayDistance(_traveledDistance);
     _displayDevice.displayTemperature(_currentTemperature);
+
     auto elapsedTimeTask = std::chrono::duration_cast<std::chrono::milliseconds>(
         _timer.elapsed_time() - taskStartTime);
 

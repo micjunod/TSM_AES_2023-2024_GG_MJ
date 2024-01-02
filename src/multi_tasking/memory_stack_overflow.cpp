@@ -13,45 +13,36 @@
 // limitations under the License.
 
 /****************************************************************************
- * @file pedal_device.hpp
+ * @file bike_system.cpp
  * @author Serge Ayer <serge.ayer@hefr.ch>
  *
- * @brief Pedal System header file (static scheduling)
+ * @brief Bike System implementation (static scheduling)
  *
  * @date 2023-08-20
  * @version 1.0.0
  ***************************************************************************/
 
-#pragma once
+#include "memory_stack_overflow.hpp"
 
-#include "constants.hpp"
-#include "mbed.h"
+#include <cstdint>
 
 namespace multi_tasking {
 
-class PedalDevice {
-   public:
-    explicit PedalDevice(mbed::Callback<void()> cbLeft,
-                         mbed::Callback<void()> cbRight);  // NOLINT(runtime/references)
-
-    // make the class non copyable
-    PedalDevice(PedalDevice&)            = delete;
-    PedalDevice& operator=(PedalDevice&) = delete;
-
-    // method called for updating the bike system
-    std::chrono::milliseconds getCurrentRotationTime();
-
-    // callback functions
-    void decrementPedal();
-    void incrementPedal();
-
-   private:
-    // private methods
-    void increaseRotationSpeed();
-    void decreaseRotationSpeed();
-
-    // data members
-    uint64_t _pedalRotationTime = bike_computer::kInitialPedalRotationTime.count();
-};
+// cppcheck-suppress unusedFunction
+void MemoryStackOverflow::allocateOnStack() {
+    // allocate an array with growing size until it does not fit on the stack anymore
+    size_t allocSize = kArraySize * _multiplier;
+    // Create a variable-size object on the stack
+    double anotherArray[allocSize];  // NOLINT
+    for (size_t i = 0; i < allocSize; i++) {
+        anotherArray[i] = i;
+    }
+    // copy to member variable to prevent them from being optimized away
+    for (size_t i = 0; i < kArraySize; i++) {
+        // cppcheck-suppress uninitvar
+        _doubleArray[i] += anotherArray[i];
+    }
+    _multiplier++;
+}
 
 }  // namespace multi_tasking

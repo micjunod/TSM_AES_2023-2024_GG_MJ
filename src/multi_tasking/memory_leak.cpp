@@ -13,45 +13,28 @@
 // limitations under the License.
 
 /****************************************************************************
- * @file pedal_device.hpp
+ * @file bike_system.cpp
  * @author Serge Ayer <serge.ayer@hefr.ch>
  *
- * @brief Pedal System header file (static scheduling)
+ * @brief Bike System implementation (static scheduling)
  *
  * @date 2023-08-20
  * @version 1.0.0
  ***************************************************************************/
 
-#pragma once
-
-#include "constants.hpp"
-#include "mbed.h"
+#include "memory_leak.hpp"
 
 namespace multi_tasking {
 
-class PedalDevice {
-   public:
-    explicit PedalDevice(mbed::Callback<void()> cbLeft,
-                         mbed::Callback<void()> cbRight);  // NOLINT(runtime/references)
+// create a memory leak in the constructor itself
+// cppcheck-suppress [noCopyConstructor,noOperatorEq,noDestructor]
+MemoryLeak::MemoryLeak() { _ptr = new int[kArraySize]; }
 
-    // make the class non copyable
-    PedalDevice(PedalDevice&)            = delete;
-    PedalDevice& operator=(PedalDevice&) = delete;
-
-    // method called for updating the bike system
-    std::chrono::milliseconds getCurrentRotationTime();
-
-    // callback functions
-    void decrementPedal();
-    void incrementPedal();
-
-   private:
-    // private methods
-    void increaseRotationSpeed();
-    void decreaseRotationSpeed();
-
-    // data members
-    uint64_t _pedalRotationTime = bike_computer::kInitialPedalRotationTime.count();
-};
+// cppcheck-suppress unusedFunction
+void MemoryLeak::use() {
+    for (uint16_t i = 0; i < kArraySize; i++) {
+        _ptr[i] = i;
+    }
+}
 
 }  // namespace multi_tasking

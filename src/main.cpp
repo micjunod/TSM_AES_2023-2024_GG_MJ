@@ -19,12 +19,21 @@
 #define TRACE_GROUP "MAIN"
 #endif  // MBED_CONF_MBED_TRACE_ENABLE
 
+#include "FlashIAPBlockDevice.h"
 #include "multi_tasking/bike_system.hpp"
 #include "static_scheduling/bike_system.hpp"
 #include "static_scheduling_with_event/bike_system.hpp"
+#include "update-client/block_device_application.hpp"
+#include "update-client/uc_error_code.hpp"
+#include "update-client/usb_serial_uc.hpp"
 
 // Blinking rate in milliseconds
 #define BLINKING_RATE 500ms
+
+const char szMsg[]            = "This is a test message";
+static constexpr uint8_t size = 10;
+uint32_t randomArray[size]    = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+uint32_t randomNumber         = 0;
 
 #if !MBED_TEST_MODE
 int main() {
@@ -32,19 +41,26 @@ int main() {
     mbed_trace_init();
 #endif
 
-#ifdef LED1
-    DigitalOut led(LED1);
-#else
-    bool led = false;
-#endif
+    tr_info(szMsg);
+    for (uint8_t i = 0; i < size; i++) {
+        randomArray[i] = rand();  // NOLINT
+        tr_info("This is a random number %d", randomArray[i]);
+    }
+    randomNumber = rand();  // NOLINT
+    tr_info("This is a random number %d", randomNumber);
+
+    FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
+    update_client::USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
+    update_client::UCErrorCode rc = usbSerialUpdateClient.start();
+    if (rc != update_client::UCErrorCode::UC_ERR_NONE) {
+        tr_error("Cannot initialize update client: %d", rc);
+    } else {
+        tr_info("Update client started");
+    }
+
+    tr_info("VERSION : 1");
 
     multi_tasking::BikeSystem bikeSystem;
     bikeSystem.start();
-
-    while (true) {
-        led = !led;
-        ThisThread::sleep_for(BLINKING_RATE);
-        tr_info("App running");
-    }
 }
 #endif

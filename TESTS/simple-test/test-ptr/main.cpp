@@ -110,6 +110,7 @@ void test_unique_pointer(void) {
     ptr2 = std::move(ptr1);
 
     // Check if pSrc is null and pDest is not null
+    // cppcheck-suppress accessMoved
     TEST_ASSERT(ptr1 == nullptr);
     TEST_ASSERT(ptr2 != nullptr);
     // Test if value was correctly moved

@@ -16,18 +16,22 @@ PedalDevice::PedalDevice(mbed::Callback<void()> cbLeft, mbed::Callback<void()> c
 }
 
 std::chrono::milliseconds PedalDevice::getCurrentRotationTime() {
-    return _pedalRotationTime;
+    return std::chrono::milliseconds(core_util_atomic_load_u64(&_pedalRotationTime));
 }
 
 void PedalDevice::decrementPedal() {
-    if (_pedalRotationTime > bike_computer::kMinPedalRotationTime) {
-        _pedalRotationTime -= bike_computer::kDeltaPedalRotationTime;
+    if (core_util_atomic_load_u64(&_pedalRotationTime) >
+        bike_computer::kMinPedalRotationTime.count()) {
+        core_util_atomic_decr_u64(&_pedalRotationTime,
+                                  bike_computer::kDeltaPedalRotationTime.count());
     }
 }
 
 void PedalDevice::incrementPedal() {
-    if (_pedalRotationTime < bike_computer::kMaxPedalRotationTime) {
-        _pedalRotationTime += bike_computer::kDeltaPedalRotationTime;
+    if (core_util_atomic_load_u64(&_pedalRotationTime) <
+        bike_computer::kMaxPedalRotationTime.count()) {
+        core_util_atomic_incr_u64(&_pedalRotationTime,
+                                  bike_computer::kDeltaPedalRotationTime.count());
     }
 }
 }  // namespace multi_tasking
