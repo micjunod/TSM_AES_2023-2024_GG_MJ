@@ -27,8 +27,6 @@
 #include "update-client/uc_error_code.hpp"
 #include "update-client/usb_serial_uc.hpp"
 
-using namespace update_client;
-
 // Blinking rate in milliseconds
 #define BLINKING_RATE 500ms
 
@@ -51,14 +49,14 @@ int main() {
     randomNumber = rand();  // NOLINT
     tr_info("This is a random number %u", randomNumber);
 
-    /*FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
-    USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
-    UCErrorCode rc = usbSerialUpdateClient.start();
-    if (rc != UCErrorCode::UC_ERR_NONE) {
+    FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
+    update_client::USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
+    update_client::UCErrorCode rc = usbSerialUpdateClient.start();
+    if (rc != update_client::UCErrorCode::UC_ERR_NONE) {
         tr_error("Cannot initialize update client: %d", rc);
     } else {
         tr_info("Update client started");
-    }*/
+    }
 
     tr_info("VERSION : 1");
 

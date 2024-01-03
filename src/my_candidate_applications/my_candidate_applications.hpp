@@ -10,8 +10,7 @@ namespace bike_computer {
     class MyCandidateApplications : public update_client::CandidateApplications
     {
         public:
-            virtual uint32_t getSlotForCandidate() override;
-
+            uint32_t getSlotForCandidate() override;
 
             MyCandidateApplications(BlockDevice& blockDevice,
                           mbed::bd_addr_t storageAddress,
