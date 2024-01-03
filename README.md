@@ -13,5 +13,9 @@ Moreover this project will have to respect software quality constraints (CI/CD, 
 
 ## Disclaimer
 
-The first 2 tests in `TESTS/bike-computer/bike-system/` on `src/static_scheduling/bike_system.cpp`, were failling each time just because of a small time deviation (was expecting 1600ms +/- 2ms, got 1602.005ms).
+Some tests in `TESTS/bike-computer/bike-system/` were failling each time just because of a small time deviation (was expecting 1600ms +/- 2ms, got 1602.005ms).
 After showing this issue with the teacher, we agreed to change to offset from 2000ms to 2100ms.
+
+## Exercises
+
+Only the questions about multi-tasking are mandatory, as specified in the project specification. They are answered in `Exercises/MultiTasking.md`. Nonethless, there are other files answering other codelabs in this folder, even though they are not mandatory. Those files are written in French for convenience.
