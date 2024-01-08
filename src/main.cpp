@@ -58,7 +58,7 @@ int main() {
         tr_info("Update client started");
     }
 
-    tr_info("VERSION : 1");
+    tr_info("VERSION : 2");
 
     multi_tasking::BikeSystem bikeSystem;
     bikeSystem.start();

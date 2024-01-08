@@ -20,7 +20,6 @@ uint32_t MyCandidateApplications::getSlotForCandidate() {
 
         if (blockdeviceapplication.isValid() == false) {
             // Return the first unused slot found
-            tr_info("slot index : %d", slotIndex);
             return slotIndex;
         }
     }
