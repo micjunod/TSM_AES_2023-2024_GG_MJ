@@ -44,10 +44,10 @@ int main() {
     tr_info(szMsg);
     for (uint8_t i = 0; i < size; i++) {
         randomArray[i] = rand();  // NOLINT
-        tr_info("This is a random number %u", randomArray[i]);
+        tr_info("This is a random number %d", randomArray[i]);
     }
     randomNumber = rand();  // NOLINT
-    tr_info("This is a random number %u", randomNumber);
+    tr_info("This is a random number %d", randomNumber);
 
     FlashIAPBlockDevice flashIAPBlockDevice(MBED_ROM_START, MBED_ROM_SIZE);
     update_client::USBSerialUC usbSerialUpdateClient(flashIAPBlockDevice);
