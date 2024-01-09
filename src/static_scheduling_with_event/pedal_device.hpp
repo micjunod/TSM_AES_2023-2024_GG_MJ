@@ -52,6 +52,7 @@ class PedalDevice {
     std::chrono::milliseconds _pedalRotationTime =
         bike_computer::kInitialPedalRotationTime;
     Timer& _timer;
+    Mutex _pedalrtMutex;
 };
 
 }  // namespace static_scheduling_with_event
