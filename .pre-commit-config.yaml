@@ -20,7 +20,7 @@ repos:
   hooks:
   -   id: cppcheck
       name: cppcheck
-      # require_serial: true
-      files: src/main.cpp
-      entry: cppcheck --enable=all --suppress=missingInclude:* --inline-suppr -i mbed-os --std=c++14 --error-exitcode=1
+      require_serial: true
+      # files: src/main.cpp
+      entry: cppcheck --enable=all --suppress=missingInclude:* --suppress=missingIncludeSystem:* --inline-suppr -i mbed-os --std=c++14 --error-exitcode=1
       language: system
